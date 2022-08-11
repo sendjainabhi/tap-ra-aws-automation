@@ -119,9 +119,6 @@ echo CLUSTER_URL: $CLUSTER_URL
 echo CLUSTER_TOKEN: $CLUSTER_TOKEN
 
 
-
-
-
 # set the following variables
 export TAP_REGISTRY_SERVER=$registry_url
 export TAP_REGISTRY_USER=$registry_user
@@ -133,7 +130,9 @@ cat <<EOF | tee tap-values-view.yaml
 profile: view
 ceip_policy_disclosed: true
 
-
+shared:
+  ingress_domain: "${tap_view_app_domain}"
+  
 contour:
   envoy:
     service:

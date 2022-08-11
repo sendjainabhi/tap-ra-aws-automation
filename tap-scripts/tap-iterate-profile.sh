@@ -8,6 +8,8 @@ export TAP_REGISTRY_SERVER=$registry_url
 export TAP_REGISTRY_USER=$registry_user
 export TAP_REGISTRY_PASSWORD=$registry_password
 export TAP_CNRS_DOMAIN=$tap_run_cnrs_domain
+export INSTALL_REGISTRY_USERNAME=$tanzu_net_reg_user
+export INSTALL_REGISTRY_PASSWORD=$tanzu_net_reg_password
 
 
 cat <<EOF | tee tap-values-iterate.yaml
@@ -24,6 +26,7 @@ buildservice:
   tanzunet_password: "${INSTALL_REGISTRY_PASSWORD}"
   descriptor_name: "full"
   enable_automatic_dependency_updates: true
+
 
 supply_chain: basic
 ootb_supply_chain_basic:

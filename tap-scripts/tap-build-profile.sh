@@ -41,7 +41,19 @@ ootb_supply_chain_basic:
   cluster_builder: default
   service_account: default
 grype:
+  namespace: "default" 
   targetImagePullSecret: "tap-registry"
+  metadataStore:
+    url: "http://metadata-store.${tap_view_app_domain}"
+    caSecret:
+        name: store-ca-cert
+        importFromNamespace: metadata-store-secrets
+    authSecret:
+        name: store-auth-token
+        importFromNamespace: metadata-store-secrets
+scanning:
+  metadataStore:
+    url: "" # Disable embedded integration since it's deprecated
 
 image_policy_webhook:
   allow_unmatched_images: true
