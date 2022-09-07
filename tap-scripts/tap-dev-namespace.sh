@@ -6,7 +6,7 @@
 #!/bin/bash
 source var.conf
 
-if [ $registry_url = "index.docker.io" ]
+if [ $registry_url = "${DOCKERHUB_REGISTRY_URL}" ]
 then
   export TAP_REGISTRY_SERVER=https://${registry_url}/v1/
 else

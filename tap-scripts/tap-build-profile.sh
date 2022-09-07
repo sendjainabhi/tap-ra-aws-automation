@@ -14,7 +14,7 @@ source var.conf
 #export TAP_NAMESPACE="tap-install"
 export TAP_REGISTRY_USER=$registry_user
 export TAP_REGISTRY_SERVER_ORIGINAL=$registry_url
-if [ $registry_url = "index.docker.io" ]
+if [ $registry_url = "${DOCKERHUB_REGISTRY_URL}" ]
 then
   export TAP_REGISTRY_SERVER=$TAP_REGISTRY_USER
   export TAP_REGISTRY_REPOSITORY=$TAP_REGISTRY_USER
