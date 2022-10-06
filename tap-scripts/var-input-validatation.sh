@@ -1,7 +1,6 @@
-
-
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
 source var.conf
-
 
 if [ -z "$tanzu_net_reg_user" ] || [ -z "$tanzu_net_reg_password" ] || [ -z "$tanzu_net_api_token" ] || [ -z "$aws_region" ] || [ -z "$os" ] 
 then 

@@ -1,3 +1,6 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+
 output "cluster_name-iterate" {
   value = aws_eks_cluster.iterate.name
 
