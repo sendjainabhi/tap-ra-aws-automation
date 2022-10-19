@@ -15,14 +15,23 @@ tanzu apps workload create "${TAP_APP_NAME}" --git-repo "${TAP_APP_GIT_URL}" --g
 --label apps.tanzu.vmware.com/has-tests=true \
 --label app.kubernetes.io/part-of="${TAP_APP_NAME}" --yes --dry-run > tap-demo-workload.yaml
 
+#tanzu apps workload create "${TAP_APP_NAME}" \
+#--git-repo "${TAP_APP_GIT_URL}" \
+#--git-branch main \
+#--git-tag tap-1.3 \
+#--type web \
+#--label app.kubernetes.io/part-of="${TAP_APP_NAME}" \
+#--label apps.tanzu.vmware.com/has-tests=true \
+#--yes
+
 tanzu apps workload create "${TAP_APP_NAME}" \
 --git-repo "${TAP_APP_GIT_URL}" \
+--sub-path "${TAP_APP_NAME}" \
 --git-branch main \
---git-tag tap-1.1 \
 --type web \
---label app.kubernetes.io/part-of="${TAP_APP_NAME}" \
+--label app.kubernetes.io/part-of="${TAP_APP_NAME}"
 --label apps.tanzu.vmware.com/has-tests=true \
---yes
+--yes \
 
 sleep 10
 

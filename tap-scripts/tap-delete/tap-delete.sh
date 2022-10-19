@@ -1,5 +1,4 @@
-#!/bin/bash
-source ../var.conf
+
 
 #delete tap from build cluster
 aws eks --region $aws_region update-kubeconfig --name tap-build
@@ -67,19 +66,24 @@ tanzu package repository delete tanzu-tap-repository  --namespace tap-install --
 
 kubectl delete secret -n tap-install --all
 
+kubectl delete serviceaccount -n tap-install --all
+
 kubectl delete ns tap-install
 
 #uninstall tanzu essentials
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
+#sudo rm -r $HOME/tanzu-cluster-essentials/
+#sudo rm -r $HOME/tanzu/
+
 echo "deleting tanzu cli"
 # you can uncomment and execute below commands to delete tanzu cli from terminal
-sudo rm -rf $HOME/tanzu/cli        # Remove previously downloaded cli files
-sudo rm /usr/local/bin/tanzu  # Remove CLI binary (executable)
-sudo rm -rf ~/.config/tanzu/       # current location # Remove config directory
-sudo rm -rf ~/.tanzu/              # old location # Remove config directory
-sudo rm -rf ~/.cache/tanzu         # remove cached catalog.yaml
-sudo rm -rf ~/Library/Application\ Support/tanzu-cli/* # Remove plug-ins
+#sudo rm -rf $HOME/tanzu/cli        # Remove previously downloaded cli files
+#sudo rm /usr/local/bin/tanzu  # Remove CLI binary (executable)
+#sudo rm -rf ~/.config/tanzu/       # current location # Remove config directory
+#sudo rm -rf ~/.tanzu/              # old location # Remove config directory
+#sudo rm -rf ~/.cache/tanzu         # remove cached catalog.yaml
+#sudo rm -rf ~/Library/Application\ Support/tanzu-cli/* # Remove plug-ins
 
-echo "tanzu cli and tap packages deleted"
+echo "tanuz cli and tap packages deleted"

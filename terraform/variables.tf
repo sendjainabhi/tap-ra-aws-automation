@@ -28,6 +28,12 @@ variable "subnet_cidr_bits" {
   default     = 8
 }
 
+variable "k8_version" {
+  description = "Kubernetes installed version "
+  type        = string
+  default     = "1.22"
+}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)

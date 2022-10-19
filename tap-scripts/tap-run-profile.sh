@@ -37,6 +37,7 @@ cnrs:
 appliveview_connector:
   backend:
     sslDisabled: "true"
+    ingressEnabled: "true"
     host: appliveview.$alv_domain
 
 EOF

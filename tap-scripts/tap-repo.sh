@@ -14,6 +14,9 @@ source var.conf
 export INSTALL_REGISTRY_USERNAME=$tanzu_net_reg_user
 export INSTALL_REGISTRY_PASSWORD=$tanzu_net_reg_password
 
+# transfer repo tap packages into user repo
+#imgpkg copy -b registry.tanzu.vmware.com/tanzu-application-platform/tap-packages:${TAP_VERSION} \
+#  --to-repo ${INSTALL_REGISTRY_HOSTNAME}/tap-packages
 
 kubectl create ns "${TAP_NAMESPACE}"
 
