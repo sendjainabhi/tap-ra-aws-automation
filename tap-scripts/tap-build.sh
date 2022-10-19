@@ -13,7 +13,7 @@ chmod +x var-input-validatation.sh
 ./var-input-validatation.sh
 
 echo  "Login to BUILD Cluster !!! "
-aws eks --region $aws_region update-kubeconfig --name tap-build
+aws eks --region $aws_region update-kubeconfig --name ${TAP_BUILD_CLUSTER_NAME}
 
 
 echo "Step 1 => installing tanzu essential in BUILD Cluster !!!"
