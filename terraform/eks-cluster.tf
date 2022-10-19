@@ -2,7 +2,7 @@
 resource "aws_eks_cluster" "iterate" {
   name     = "${var.project}-iterate"
   role_arn = aws_iam_role.cluster.arn
-  version  = "1.21"
+  version  = "${var.k8_version}"
 
   vpc_config {
     # security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]
@@ -25,7 +25,7 @@ resource "aws_eks_cluster" "iterate" {
 resource "aws_eks_cluster" "build" {
   name     = "${var.project}-build"
   role_arn = aws_iam_role.cluster.arn
-  version  = "1.21"
+  version  = "${var.k8_version}"
 
   vpc_config {
     # security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]
@@ -48,7 +48,7 @@ resource "aws_eks_cluster" "build" {
 resource "aws_eks_cluster" "run" {
   name     = "${var.project}-run"
   role_arn = aws_iam_role.cluster.arn
-  version  = "1.21"
+  version  = "${var.k8_version}"
 
   vpc_config {
     # security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]
@@ -71,7 +71,7 @@ resource "aws_eks_cluster" "run" {
 resource "aws_eks_cluster" "view" {
   name     = "${var.project}-view"
   role_arn = aws_iam_role.cluster.arn
-  version  = "1.21"
+  version  = "${var.k8_version}"
 
   vpc_config {
     # security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]

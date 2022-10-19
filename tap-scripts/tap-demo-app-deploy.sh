@@ -18,7 +18,7 @@ tanzu apps workload create "${TAP_APP_NAME}" --git-repo "${TAP_APP_GIT_URL}" --g
 tanzu apps workload create "${TAP_APP_NAME}" \
 --git-repo "${TAP_APP_GIT_URL}" \
 --git-branch main \
---git-tag tap-1.1 \
+--git-tag tap-1.3 \
 --type web \
 --label app.kubernetes.io/part-of="${TAP_APP_NAME}" \
 --label apps.tanzu.vmware.com/has-tests=true \
