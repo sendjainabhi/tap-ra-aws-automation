@@ -1,6 +1,13 @@
 
+if [[ $(echo $PWD | awk -F '/' '{print $NF}') == "tap-delete" ]]
+then #move to tap-scripts dir
+  cd ../
+fi
+
+source var.conf
 
 #delete tap from build cluster
+./eks-csi.sh -c tap-build --remove
 aws eks --region $aws_region update-kubeconfig --name tap-build
 echo "deleting tap from build cluster"
 #delete all tap packages 
@@ -19,6 +26,7 @@ cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
 #delete tap from view cluster
+./eks-csi.sh -c tap-view --remove
 aws eks --region $aws_region update-kubeconfig --name tap-view
 echo "deleting tap from view cluster"
 #delete all tap packages 
@@ -37,6 +45,7 @@ cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
 #delete tap from run cluster
+./eks-csi.sh -c tap-run --remove
 aws eks --region $aws_region update-kubeconfig --name tap-run
 echo "deleting tap from run cluster"
 #delete all tap packages 
@@ -55,6 +64,7 @@ cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
 #delete tap from iterate cluster
+./eks-csi.sh -c tap-iterate build --remove
 aws eks --region $aws_region update-kubeconfig --name tap-iterate
 echo "deleting tap from iterate cluster"
 #delete all tap packages 

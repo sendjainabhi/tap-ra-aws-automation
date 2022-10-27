@@ -1,3 +1,12 @@
+read -p "Cluster Name: " cluster_name
+
+if [[ $(echo $PWD | awk -F '/' '{print $NF}') == "tap-delete" ]]
+then #move to tap-scripts dir
+  cd ../
+fi
+
+source var.conf
+./eks-csi.sh -c $cluster_name --remove
 
 #delete all tap packages 
 tanzu package installed delete tap -n tap-install --yes

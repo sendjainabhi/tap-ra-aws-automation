@@ -1,28 +1,25 @@
 #!/bin/bash
 source var.conf
-
-chmod +x tap-view.sh
-chmod +x tap-run.sh
-chmod +x tap-build.sh
-chmod +x tanzu-cli-setup.sh
-chmod +x tap-demo-app-deploy.sh
-chmod +x tap-iterate.sh
-chmod +x tap-iterate.sh
+source lib/check-tools.sh
 
 chmod +x var-input-validatation.sh
+chmod +x tanzu-cli-setup.sh
+chmod +x tap-cluster.sh
+chmod +x tap-demo-app-deploy.sh
+
 
 ./var-input-validatation.sh
-echo "Step 1 => installing tanzu cli !!!"
+echo "Step 1 => Installing tanzu cli !!!"
 ./tanzu-cli-setup.sh
+check_all_tools
 echo "Step 2 => Setup TAP View Cluster"
-./tap-view.sh
+./tap-cluster.sh -c tap-view 
 echo "Step 3 => Setup TAP Run Cluster"
-./tap-run.sh
+./tap-cluster.sh -c tap-run
 echo "Step 4 => Setup TAP Build Cluster"
-./tap-build.sh
-
+./tap-cluster.sh -c tap-build
 echo "Step 4 => Setup TAP Build Cluster"
-./tap-iterate.sh
+./tap-cluster.sh -c tap-iterate
 
 echo "pick an external ip from service output and configure DNS wildcard records in your dns server for view and run cluster"
 echo "example view cluster - *.view.customer0.io ==> <ingress external ip/cname>"
