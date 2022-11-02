@@ -12,16 +12,14 @@ chmod +x var-input-validatation.sh
 
 ./var-input-validatation.sh
 
-echo  "Login to View Cluster !!! "
-#login to kubernets eks run cluster
-aws eks --region $aws_region update-kubeconfig --name tap-view
+echo  "Log in to VIEW Cluster !!! "
+kubectl config set-cluster ${TAP_VIEW_CLUSTER_NAME} --server=${TAP_VIEW_CLUSTER_SERVER} --certificate-authority=${TAP_VIEW_CLUSTER_CACERT_FILE}
+kubectl config set-credentials ${TAP_VIEW_CLUSTER_USER} --client-certificate=${TAP_VIEW_CLUSTER_CERT_FILE} --client-key=${TAP_VIEW_CLUSTER_KEY_FILE}
+kubectl config set-context ${TAP_VIEW_CLUSTER_USER}@${TAP_VIEW_CLUSTER_NAME} --cluster=${TAP_VIEW_CLUSTER_NAME} --user=${TAP_VIEW_CLUSTER_USER}
+kubectl config use-context ${TAP_VIEW_CLUSTER_USER}@${TAP_VIEW_CLUSTER_NAME}
 
-
-#kubectl config get-contexts
-#read -p "Select Kubernetes context of view cluster: " target_context
-#kubectl config use-context $target_context
-echo "Step 1 => installing tanzu cli and tanzu essential in VIEW cluster !!!"
-./tanzu-essential-setup.sh
+#echo "Step 1 => installing tanzu cli and tanzu essential in VIEW cluster !!!"
+#./tanzu-essential-setup.sh
 echo "Step 2 => installing TAP Repo in VIEW cluster !!! "
 ./tap-repo.sh
 echo "Step 3 => installing TAP VIEW  Profile !!! "

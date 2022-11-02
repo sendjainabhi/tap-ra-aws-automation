@@ -24,4 +24,4 @@ sudo rm -rf ~/.tanzu/              # old location # Remove config directory
 sudo rm -rf ~/.cache/tanzu         # remove cached catalog.yaml
 sudo rm -rf ~/Library/Application\ Support/tanzu-cli/* # Remove plug-ins
 
-echo "tanuz cli and tap packages deleted"
+echo "tanzu cli and tap packages deleted"
