@@ -1,3 +1,6 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+
 # EKS Clusters
 resource "aws_eks_cluster" "iterate" {
   name     = "${var.project}-iterate"

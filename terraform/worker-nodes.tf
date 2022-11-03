@@ -1,3 +1,6 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+
 # EKS Node Groups - iterate
 resource "aws_eks_node_group" "iterate" {
   cluster_name    = aws_eks_cluster.iterate.name
