@@ -1,17 +1,24 @@
+#!/bin/bash
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
 
 #read -p "Enter custom registry url (harbor/azure registry etc): " registry_url
 #read -p "Enter custom registry user: " registry_user
 #read -p "Enter custom registry password: " registry_password
 
-#!/bin/bash
 source var.conf
 
-export TAP_REGISTRY_SERVER=$registry_url
+if [ $registry_url = "${DOCKERHUB_REGISTRY_URL}" ]
+then
+  export TAP_REGISTRY_SERVER=https://${registry_url}/v1/
+else
+  export TAP_REGISTRY_SERVER=$registry_url
+fi
 export TAP_REGISTRY_USER=$registry_user
 export TAP_REGISTRY_PASSWORD=$registry_password
 #export TAP_DEV_NAMESPACE="default"
 
-tanzu secret registry add registry-credentials --server $registry_url \
+tanzu secret registry add registry-credentials --server $TAP_REGISTRY_SERVER \
 --username $registry_user --password $registry_password --namespace  "${TAP_DEV_NAMESPACE}"
 
 cat <<EOF | kubectl -n "${TAP_DEV_NAMESPACE}" apply -f -
