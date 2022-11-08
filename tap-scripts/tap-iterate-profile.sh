@@ -26,6 +26,9 @@ profile: iterate
 
 ceip_policy_disclosed: true
 
+excluded_packages:
+  - policy.apps.tanzu.vmware.com
+
 buildservice:
   kp_default_repository: "${TAP_REGISTRY_SERVER}/build-service"
   kp_default_repository_username: "${TAP_REGISTRY_USER}"

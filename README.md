@@ -140,6 +140,8 @@ chmod +x /tap-scripts/tap-run.sh
 
 ```
 
+> **NOTE:** This TAP Version (1.3.0) has a bug in the policy-controller package that prevents it to start successfully and reconcile. It has been excluded in the configuration. Namespaces manually labeled to undergo signature verification will not be able to verify the signature of an image before it is let into the cluster
+
 * **To install build profile only , execute following step** 
 
 ```
@@ -166,6 +168,8 @@ chmod +x /tap-scripts/tap-iterate.sh
 
 
 ```
+
+> **NOTE:** This TAP Version (1.3.0) has a bug in the policy-controller package that prevents it to start successfully and reconcile. It has been excluded in the configuration. Namespaces manually labeled to undergo signature verification will not be able to verify the signature of an image before it is let into the cluster
 
 ### TAP scripts for specific tasks
 
