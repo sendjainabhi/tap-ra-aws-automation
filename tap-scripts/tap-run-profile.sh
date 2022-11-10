@@ -1,13 +1,24 @@
-#!/bin/bash
-# Copyright 2022 VMware, Inc.
-# SPDX-License-Identifier: BSD-2-Clause
 
+#kubectl config get-contexts
+#read -p "Target EKS Context: " target_context
+
+#kubectl config use-context $target_context
+
+#read -p "Enter custom registry url (harbor/azure registry etc): " registry_url
+#read -p "Enter custom registry user: " registry_user
+#read -p "Enter custom registry password: " registry_password
+#read -p "Enter cnrs domain: " tap_cnrs_domain
+#read -p "Enter app live view domain: " alv_domain
+
+#!/bin/bash
 source var.conf
 
+#export TAP_NAMESPACE="tap-install"
 export TAP_REGISTRY_SERVER=$registry_url
 export TAP_REGISTRY_USER=$registry_user
 export TAP_REGISTRY_PASSWORD=$registry_password
 export TAP_CNRS_DOMAIN=$tap_run_cnrs_domain
+##export TAP_VERSION=1.1.0
 
 cat <<EOF | tee tap-values-run.yaml
 profile: run
@@ -15,10 +26,11 @@ ceip_policy_disclosed: true
 supply_chain: basic
 
 contour:
+  infrastructure_provider: aws
   envoy:
     service:
-      type: LoadBalancer
-
+      aws:
+        LBType: nlb
 cnrs:
   domain_name: "${tap_run_cnrs_domain}"
 

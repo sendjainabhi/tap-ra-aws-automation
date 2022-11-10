@@ -1,6 +1,4 @@
 #!/bin/bash
-# Copyright 2022 VMware, Inc.
-# SPDX-License-Identifier: BSD-2-Clause
 source var.conf
 
 echo "Build source code in build cluster !!!"
