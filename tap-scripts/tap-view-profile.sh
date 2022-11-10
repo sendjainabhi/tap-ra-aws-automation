@@ -1,6 +1,5 @@
+
 #!/bin/bash
-# Copyright 2022 VMware, Inc.
-# SPDX-License-Identifier: BSD-2-Clause
 source var.conf
 
 cat <<EOF | tee tap-gui-viewer-service-account-rbac.yaml
@@ -120,6 +119,9 @@ echo CLUSTER_URL: $CLUSTER_URL
 echo CLUSTER_TOKEN: $CLUSTER_TOKEN
 
 
+
+
+
 # set the following variables
 export TAP_REGISTRY_SERVER=$registry_url
 export TAP_REGISTRY_USER=$registry_user
@@ -131,19 +133,11 @@ cat <<EOF | tee tap-values-view.yaml
 profile: view
 ceip_policy_disclosed: true
 
-shared:
-  ingress_domain: "${tap_view_app_domain}"
-  
+
 contour:
   envoy:
     service:
       type: LoadBalancer
-
-accelerator:
-  server.service_type: ClusterIP
-  ingress:
-    include: "true"
-  domain: "${tap_view_app_domain}"
 
 learningcenter:
   ingressDomain: "learning.${tap_view_app_domain}"
@@ -153,28 +147,18 @@ tap_gui:
   service_type: ClusterIP
   ingressEnabled: "true"
   ingressDomain: "${tap_view_app_domain}"
-  tls:
-    namespace: tap-gui
-    secretName: tap-gui-cert
   app_config:
     app:
-      baseUrl: "https://tap-gui.${tap_view_app_domain}"
+      baseUrl: "http://tap-gui.${tap_view_app_domain}"
     catalog:
       locations:
         - type: url
           target: ${tap_git_catalog_url}
     backend:
-        baseUrl: "https://tap-gui.${tap_view_app_domain}"
+        baseUrl: "http://tap-gui.${tap_view_app_domain}"
         cors:
-          origin: "https://tap-gui.${tap_view_app_domain}"
-    proxy:
-      /metadata-store:
-        target: https://metadata-store-app.metadata-store:8443/api/v1
-        changeOrigin: true
-        secure: false
-        headers:
-          Authorization: "Bearer ${CLUSTER_TOKEN}"
-          X-Custom-Source: project-star    
+          origin: "http://tap-gui.${tap_view_app_domain}"
+
     kubernetes:
       serviceLocatorMethod:
         type: "multiTenant"
@@ -202,44 +186,6 @@ EOF
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file tap-values-view.yaml -n "${TAP_NAMESPACE}"
 tanzu package installed get tap -n "${TAP_NAMESPACE}"
 
-# Create Issuer and Certificate for tap-gui
-#cat <<EOF | tee tap-view-cluster-issuer.yaml
-#apiVersion: cert-manager.io/v1
-#kind: ClusterIssuer
-#metadata:
-#  name: letsencrypt-http01-issuer
-#spec:
-#  acme:
-#    server: https://acme-v02.api.letsencrypt.org/directory
-#    email: ipablo@vmware.com
-#    privateKeySecretRef:
-#      name: letsencrypt-http01-issuer
-#    solvers:
-#      - http01:
-#          ingress:
-#            class: contour
-#EOF
-
-#cat <<EOF | tee tap-view-certificate.yaml
-
-#apiVersion: cert-manager.io/v1
-#kind: Certificate
-#metadata:
-#  namespace: cert-manager
-#  name: tap-gui
-#spec:
-#  commonName: tap-gui.${tap_view_app_domain}
-#  dnsNames:
-#  - tap-gui.${tap_view_app_domain}
-#  issuerRef:
-#    name: letsencrypt-http01-issuer
-#    kind: ClusterIssuer
-#  secretName: tap-gui
-#EOF
-
-#kubectl create -f tap-view-cluster-issuer.yaml
-#kubectl create -f tap-view-certificate.yaml
-kubectl create secret tls tap-gui-cert --cert $TAP_GUI_CERT --key $TAP_GUI_KEY -n tap-gui
 
 # ensure all build cluster packages are installed succesfully
 tanzu package installed list -A
