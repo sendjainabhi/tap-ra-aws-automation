@@ -13,16 +13,8 @@ source var.conf
 #read -p "Enter custom registry password: " registry_password
 
 #export TAP_NAMESPACE="tap-install"
+export TAP_REGISTRY_SERVER=$registry_url
 export TAP_REGISTRY_USER=$registry_user
-export TAP_REGISTRY_SERVER_ORIGINAL=$registry_url
-if [ $registry_url = "${DOCKERHUB_REGISTRY_URL}" ]
-then
-  export TAP_REGISTRY_SERVER=$TAP_REGISTRY_USER
-  export TAP_REGISTRY_REPOSITORY=$TAP_REGISTRY_USER
-else
-  export TAP_REGISTRY_SERVER=$registry_url
-  export TAP_REGISTRY_REPOSITORY="supply-chain"
-fi
 export TAP_REGISTRY_PASSWORD=$registry_password
 #export TAP_VERSION=1.1.0
 export INSTALL_REGISTRY_USERNAME=$tanzu_net_reg_user
@@ -38,13 +30,12 @@ buildservice:
   kp_default_repository_password: "${TAP_REGISTRY_PASSWORD}"
   tanzunet_username: "${INSTALL_REGISTRY_USERNAME}"
   tanzunet_password: "${INSTALL_REGISTRY_PASSWORD}"
-  descriptor_name: "full"
-  enable_automatic_dependency_updates: true
+  descriptor_name: "lite"
 supply_chain: basic
 ootb_supply_chain_basic:    
   registry:
-    server: "${TAP_REGISTRY_SERVER_ORIGINAL}"
-    repository: "${TAP_REGISTRY_REPOSITORY}"
+    server: "${TAP_REGISTRY_SERVER}"
+    repository: "supply-chain"
   gitops:
     ssh_secret: ""
   cluster_builder: default
@@ -53,7 +44,7 @@ grype:
   namespace: "default" 
   targetImagePullSecret: "tap-registry"
   metadataStore:
-    url: "http://metadata-store.${tap_view_app_domain}"
+    url: "http://metadata-store.${tap_view_domain}"
     caSecret:
         name: store-ca-cert
         importFromNamespace: metadata-store-secrets
@@ -66,6 +57,12 @@ scanning:
 
 image_policy_webhook:
   allow_unmatched_images: true
+  
+appliveview_connector:
+  backend:
+    sslDisabled: "true"
+    ingressEnabled: "true"
+    host: appliveview.$tap_view_domain
 
 EOF
 

@@ -14,7 +14,7 @@ chmod +x var-input-validatation.sh
 
 echo  "Login to View Cluster !!! "
 #login to kubernets eks run cluster
-aws eks --region $aws_region update-kubeconfig --name tap-view
+aws eks --region $aws_region update-kubeconfig --name ${TAP_VIEW_CLUSTER_NAME} 
 
 
 #kubectl config get-contexts

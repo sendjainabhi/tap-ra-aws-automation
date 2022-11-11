@@ -13,7 +13,7 @@ chmod +x var-input-validatation.sh
 ./var-input-validatation.sh
 
 echo  "Login to RUN Cluster !!! "
-aws eks --region $aws_region update-kubeconfig --name tap-run
+aws eks --region $aws_region update-kubeconfig --name ${TAP_RUN_CLUSTER_NAME}
 
 #login to kubernets eks run cluster
 #kubectl config get-contexts
