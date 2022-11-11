@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-#!/bin/bash
-# Copyright 2022 VMware, Inc.
-# SPDX-License-Identifier: BSD-2-Clause
-source ../var.conf
-=======
-
->>>>>>> 08d42799fad969cb0635dcad386630bfae97116b
 
 #delete tap from build cluster
 aws eks --region $aws_region update-kubeconfig --name tap-build
@@ -93,8 +85,4 @@ echo "deleting tanzu cli"
 #sudo rm -rf ~/.cache/tanzu         # remove cached catalog.yaml
 #sudo rm -rf ~/Library/Application\ Support/tanzu-cli/* # Remove plug-ins
 
-<<<<<<< HEAD
-echo "tanzu cli and tap packages deleted"
-=======
 echo "tanuz cli and tap packages deleted"
->>>>>>> 08d42799fad969cb0635dcad386630bfae97116b
