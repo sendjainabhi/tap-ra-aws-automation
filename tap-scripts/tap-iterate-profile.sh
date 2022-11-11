@@ -59,7 +59,7 @@ contour:
       type: LoadBalancer
 
 cnrs:
-  domain_name: "${tap_iterate_cnrs_domain}"
+  domain_name: "${tap_iterate_domain}"
 
 excluded_packages:
   - policy.apps.tanzu.vmware.com
