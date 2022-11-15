@@ -1,3 +1,5 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
 
 #delete all tap packages 
 tanzu package installed delete tap -n tap-install --yes

@@ -1,3 +1,6 @@
+#!/bin/bash
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
 
 #kubectl config get-contexts
 #read -p "Target EKS Context: " target_context
@@ -10,7 +13,6 @@
 #read -p "Enter cnrs domain: " tap_cnrs_domain
 #read -p "Enter app live view domain: " alv_domain
 
-#!/bin/bash
 source var.conf
 
 #export TAP_NAMESPACE="tap-install"
@@ -24,6 +26,9 @@ cat <<EOF | tee tap-values-run.yaml
 profile: run
 ceip_policy_disclosed: true
 supply_chain: basic
+
+excluded_packages:
+  - policy.apps.tanzu.vmware.com
 
 contour:
   infrastructure_provider: aws

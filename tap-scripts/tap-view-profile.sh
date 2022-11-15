@@ -1,5 +1,6 @@
-
 #!/bin/bash
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
 source var.conf
 
 cat <<EOF | tee tap-gui-viewer-service-account-rbac.yaml

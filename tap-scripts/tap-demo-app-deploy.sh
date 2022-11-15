@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
 source var.conf
 
 echo "Build source code in build cluster !!!"
@@ -29,9 +31,9 @@ tanzu apps workload create "${TAP_APP_NAME}" \
 --sub-path "${TAP_APP_NAME}" \
 --git-branch main \
 --type web \
---label app.kubernetes.io/part-of="${TAP_APP_NAME}"
+--label app.kubernetes.io/part-of="${TAP_APP_NAME}" \
 --label apps.tanzu.vmware.com/has-tests=true \
---yes \
+--yes
 
 sleep 10
 

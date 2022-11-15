@@ -1,9 +1,11 @@
+#!/bin/bash
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
 
 #read -p "Enter custom registry url (harbor/azure registry etc): " registry_url
 #read -p "Enter custom registry user: " registry_user
 #read -p "Enter custom registry password: " registry_password
 
-#!/bin/bash
 source var.conf
 
 if [ $registry_url = "${DOCKERHUB_REGISTRY_URL}" ]
