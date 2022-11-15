@@ -38,7 +38,6 @@ buildservice:
   kp_default_repository_password: "${TAP_REGISTRY_PASSWORD}"
   tanzunet_username: "${INSTALL_REGISTRY_USERNAME}"
   tanzunet_password: "${INSTALL_REGISTRY_PASSWORD}"
-  descriptor_name: "lite"
 supply_chain: basic
 ootb_supply_chain_basic:    
   registry:
