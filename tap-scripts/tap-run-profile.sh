@@ -45,8 +45,6 @@ appliveview_connector:
     ingressEnabled: "true"
     host: appliveview.$tap_view_domain
 
-excluded_packages:
-  - policy.apps.tanzu.vmware.com
 
 EOF
 

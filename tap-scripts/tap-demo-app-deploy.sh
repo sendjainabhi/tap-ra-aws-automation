@@ -1,51 +1,40 @@
 #!/bin/bash
-# Copyright 2022 VMware, Inc.
-# SPDX-License-Identifier: BSD-2-Clause
 source var.conf
-
+export TAP_APP_NAME=tanzu-java-web-app
 echo "Build source code in build cluster !!!"
 
 echo "Login to build cluster !!!"
 aws eks --region $aws_region update-kubeconfig --name tap-build
 
+tanzu apps workload list
+
 echo "delete existing app"
-tanzu apps workload delete --all
 
-tanzu apps workload list
+tanzu apps workload delete ${TAP_APP_NAME} --yes
 
 
-tanzu apps workload create "${TAP_APP_NAME}" \                                                                                                                             ok | 03:47:58 PM 
---git-repo "${TAP_APP_GIT_URL}" \
---git-branch tap1.3 \
+
+
+tanzu apps workload create tanzu-java-web-app \
+--git-repo https://github.com/vmware-tanzu/application-accelerator-samples \
+--sub-path tanzu-java-web-app \
+--git-branch main \
 --type web \
---label app.kubernetes.io/part-of="${TAP_APP_NAME}" \
---yes --dry-run > ${TAP_APP_NAME}-workload.yaml
+--label app.kubernetes.io/part-of=tanzu-java-web-app \
+--yes \
+--namespace ${TAP_DEV_NAMESPACE}
 
 
-tanzu apps workload create "${TAP_APP_NAME}" \                                                                                                                             ok | 03:47:58 PM 
---git-repo "${TAP_APP_GIT_URL}" \
---git-branch tap1.3 \
---type web \
---label app.kubernetes.io/part-of="${TAP_APP_NAME}" \
---yes
+#tanzu apps workload tail tanzu-java-web-app --since 3m --timestamp --namespace ${TAP_DEV_NAMESPACE}
+echo "Waiting for app build !!!! "
+sleep 50
 
-
-#tanzu apps workload create spring-music \                                                                                                                             ok | 03:47:58 PM 
-#--git-repo https://github.com/PeterEltgroth/spring-music \
-#--git-branch tap1.3 \
-#--type web \
-#--label app.kubernetes.io/part-of=spring-music \
-#--yes
-
-sleep 10
-
-tanzu apps workload list
 
 tanzu apps workload get "${TAP_APP_NAME}"
 
 echo "generate tap-demo deliver.yaml workload "
 
-kubectl get deliverables "${TAP_APP_NAME}" -o yaml |  yq 'del(.status)'  | yq 'del(.metadata.ownerReferences)' | yq 'del(.metadata.resourceVersion)' | yq 'del(.metadata.uid)' >  "${TAP_APP_NAME}-delivery.yaml"
+kubectl get configmap tanzu-java-web-app-deliverable -n ${TAP_DEV_NAMESPACE} -o go-template='{{.data.deliverable}}' > ${TAP_APP_NAME}-delivery.yaml
 
 cat ${TAP_APP_NAME}-delivery.yaml
 
@@ -54,8 +43,11 @@ aws eks --region $aws_region update-kubeconfig --name tap-run
 
 kubectl apply -f ${TAP_APP_NAME}-delivery.yaml
 
-kubectl get deliverable -A     
+kubectl get deliverable -A   
 
+kubectl get httpproxy --namespace ${DEVELOPER_NAMESPACE}
+
+sleep 15
 echo "get app url and copy into browser to test the app"
 kubectl get ksvc
 
