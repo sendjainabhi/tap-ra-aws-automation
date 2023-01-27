@@ -61,8 +61,6 @@ contour:
 cnrs:
   domain_name: "${tap_iterate_domain}"
 
-excluded_packages:
-  - policy.apps.tanzu.vmware.com
 
 EOF
 

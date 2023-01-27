@@ -31,7 +31,7 @@ variable "subnet_cidr_bits" {
 variable "k8_version" {
   description = "Kubernetes installed version "
   type        = string
-  default     = "1.22"
+  default     = "1.23"
 }
 
 variable "tags" {
