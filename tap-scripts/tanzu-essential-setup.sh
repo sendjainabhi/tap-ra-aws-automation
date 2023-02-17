@@ -28,16 +28,15 @@ if [ "$os" == "$var" ]; then
 
 # install tanzu cluster essentials
 
-#mac - https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1238179/product_files/1407186/download
-#linux -https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1238179/product_files/1407185/download
+#mac - https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1249982/product_files/1423996/download
 
-#file name - mac = tanzu-cluster-essentials-darwin-amd64-1.4.0.tgz , linux = tanzu-cluster-essentials-linux-amd64-1.4.0.tgz
+#linux -https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1249982/product_files/1423994/download
 
-filename=tanzu-cluster-essentials-darwin-amd64-1.4.0.tgz
-tanzuessnurl=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1238179/product_files/1407186/download
+#file name - mac = tanzu-cluster-essentials-darwin-amd64-1.4.1.tgz , linux = tanzu-cluster-essentials-linux-amd64-1.4.1.tgz
 
+filename=$tanzu_ess_filename_m
 mkdir $HOME/tanzu-cluster-essentials
-wget $tanzuessnurl --header="Authorization: Bearer ${access_token}" -O $HOME/tanzu-cluster-essentials/$filename
+wget $tanzu_ess_url_m --header="Authorization: Bearer ${access_token}" -O $HOME/tanzu-cluster-essentials/$filename
 tar -xvf $HOME/tanzu-cluster-essentials/$filename -C $HOME/tanzu-cluster-essentials
 
 cd $HOME/tanzu-cluster-essentials
@@ -50,15 +49,15 @@ sudo cp $HOME/tanzu-cluster-essentials/imgpkg /usr/local/bin/imgpkg
 else
     echo "OS = Linux/ubuntu"
 
-#mac - https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1238179/product_files/1407186/download
-#linux -https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1238179/product_files/1407185/download
+#mac - https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1249982/product_files/1423996/download
 
-#file name - mac = tanzu-cluster-essentials-darwin-amd64-1.4.0.tgz , linux = tanzu-cluster-essentials-linux-amd64-1.4.0.tgz
+#linux -https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1249982/product_files/1423994/download
 
-filename=tanzu-cluster-essentials-linux-amd64-1.4.0.tgz
-tanzuessnurl=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1238179/product_files/1407185/download
+#file name - mac = tanzu-cluster-essentials-darwin-amd64-1.4.1.tgz , linux = tanzu-cluster-essentials-linux-amd64-1.4.1.tgz
+
+filename=$tanzu_ess_filename_l
 mkdir $HOME/tanzu-cluster-essentials
-wget $tanzuessnurl --header="Authorization: Bearer ${access_token}" -O $HOME/tanzu-cluster-essentials/$filename
+wget $tanzu_ess_url_l --header="Authorization: Bearer ${access_token}" -O $HOME/tanzu-cluster-essentials/$filename
 tar -xvf $HOME/tanzu-cluster-essentials/$filename -C $HOME/tanzu-cluster-essentials
 
 cd $HOME/tanzu-cluster-essentials

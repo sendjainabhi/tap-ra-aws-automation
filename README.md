@@ -1,6 +1,6 @@
 ## Purpose
 
-This project is designed to build a Tanzu Application Platform 1.4 multicluster instances on AWS EKS that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
+This project is designed to build a Tanzu Application Platform 1.4.x multicluster instances on AWS EKS that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
 
 This is 2 steps automation with minimum inputs into config files. 
 
