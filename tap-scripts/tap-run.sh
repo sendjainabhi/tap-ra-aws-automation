@@ -15,7 +15,7 @@ chmod +x var-input-validatation.sh
 
 ./var-input-validatation.sh
 
-echo  "RUN Cluster - Login and install AWS EKS CSI Driver"
+echo  "RUN Cluster - Login and check AWS EKS CSI Driver"
 ./eks-csi.sh -c $TAP_RUN_CLUSTER_NAME
 
 echo "Step 1 => installing tanzu essential in RUN cluster !!!"

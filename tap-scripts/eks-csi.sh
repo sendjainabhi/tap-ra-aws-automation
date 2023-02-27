@@ -86,6 +86,7 @@ get_oidc_info(){
   fi
 
   oidc_arn="arn:aws:iam::${aws_account_id}:oidc-provider/oidc.eks.${aws_region}.amazonaws.com/id/${oidc_id}"
+  echo "oidc_arn: $oidc_arn"
 }
 
 remove_csi(){
@@ -94,15 +95,8 @@ remove_csi(){
     echo "EBS CSI Driver is currently not installed"
   else
     echo "EBS CSI Driver is installed, removing..."
-    echo "Detach IAM role and policy"
-    aws iam detach-role-policy \
-      --role-name AmazonEKS_EBS_CSI_DriverRole \
-      --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-      
-    echo "Delete IAM role"
-    aws iam delete-role \
-      --role-name AmazonEKS_EBS_CSI_DriverRole
-
+    remove_csi_role_and_policy
+    
     echo "Delete OIDC Connect Provider for arn: $oidc_arn"
     aws iam delete-open-id-connect-provider --open-id-connect-provider-arn $oidc_arn
 
@@ -114,7 +108,7 @@ remove_csi(){
 
     for (( i=0; i<10; i++ ))
     do
-      echo "Deletion may take time, sleeping: " $(( ($i + 1)*3))
+      echo "Deletion may take time, sleeping: " $((($i + 1)*3))
       sleep 3
       echo "$(aws iam list-open-id-connect-providers --no-cli-pager | grep $oidc_id)"
       # This is not quite correct. Very ocassionally deletion has not completed, but re-creation begins anyway, causing an error. 
@@ -125,6 +119,61 @@ remove_csi(){
       fi
     done
   fi
+}
+
+remove_csi_role_and_policy(){
+  echo "Check if the EBS CSI Driver Role can be removed"
+  if [[ -z $(aws iam list-open-id-connect-providers --no-cli-pager | jq --arg oidc_arn "$oidc_arn" '.OpenIDConnectProviderList[].Arn != $oidc_arn' | grep true) ]]; then
+    echo "This is the last EBS CSI OIDC Provider, remove the role"
+    echo "Detach IAM role and policy"
+    aws iam detach-role-policy \
+      --role-name AmazonEKS_EBS_CSI_DriverRole \
+      --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+      
+    echo "Delete IAM role"
+    aws iam delete-role \
+      --role-name AmazonEKS_EBS_CSI_DriverRole
+  fi
+}
+
+add_csi(){
+  #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
+  #https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html
+  echo "Create EKS addon for aws-ebs-csi-driver"
+  aws eks create-addon \
+    --cluster-name $cluster_name \
+    --addon-name aws-ebs-csi-driver \
+    --service-account-role-arn "arn:aws:iam::${aws_account_id}:role/AmazonEKS_EBS_CSI_DriverRole" \
+    --no-cli-pager  # Prevent cmd output from going to 'less'
+
+  # https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html
+  if [[ -z $(aws iam list-open-id-connect-providers | grep $oidc_id) ]]; then
+    echo "Creating IAM OIDC provider for $cluster_name"
+    eksctl utils associate-iam-oidc-provider --region $aws_region --cluster $cluster_name --approve
+
+    # An more complex alternative is using: aws iam create-open-id-connect-provider
+    # oidc_issuer_url=$(aws eks describe-cluster --name tap-build --query "cluster.identity.oidc.issuer" --output text)
+    # thumbprint=$(aws eks describe-cluster --name tap-build | jq '.cluster.certificateAuthority.data' -r | base64 -d | openssl x509 -fingerprint -noout | awk -F '=' '{print $2}' | sed 's/://g')
+    # aws iam create-open-id-connect-provider --url $oidc_issuer_url --thumbprint-list $thumbprint
+  fi
+
+  create_trust_policy
+  
+  echo "Create AmazonEKS_EBS_CSI_DriverRole"
+  aws iam create-role \
+    --role-name AmazonEKS_EBS_CSI_DriverRole \
+    --assume-role-policy-document file://"aws-ebs-csi-driver-trust-policy.json" \
+    --no-cli-pager  # Prevent cmd output from going to 'less'
+    
+  echo "Attach Role and Policy"
+  aws iam attach-role-policy \
+    --role-name AmazonEKS_EBS_CSI_DriverRole \
+    --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+    
+  echo "Annotate ServiceAccount"
+  kubectl annotate serviceaccount ebs-csi-controller-sa \
+      -n kube-system --overwrite \
+      eks.amazonaws.com/role-arn=arn:aws:iam::${aws_account_id}:role/AmazonEKS_EBS_CSI_DriverRole  
 }
 
 main(){
@@ -189,45 +238,13 @@ main(){
   fi
 
   get_oidc_info
-  remove_csi
 
-  #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
-  #https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html
-  echo "Create EKS addon for aws-ebs-csi-driver"
-  aws eks create-addon \
-    --cluster-name $cluster_name \
-    --addon-name aws-ebs-csi-driver \
-    --service-account-role-arn "arn:aws:iam::${aws_account_id}:role/AmazonEKS_EBS_CSI_DriverRole" \
-    --no-cli-pager  # Prevent cmd output from going to 'less'
-
-  # https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html
-  if [[ -z $(aws iam list-open-id-connect-providers | grep $oidc_id) ]]; then
-    echo "Creating IAM OIDC provider for $cluster_name"
-    eksctl utils associate-iam-oidc-provider --region $aws_region --cluster $cluster_name --approve
-
-    # An more complex alternative is using: aws iam create-open-id-connect-provider
-    # oidc_issuer_url=$(aws eks describe-cluster --name tap-build --query "cluster.identity.oidc.issuer" --output text)
-    # thumbprint=$(aws eks describe-cluster --name tap-build | jq '.cluster.certificateAuthority.data' -r | base64 -d | openssl x509 -fingerprint -noout | awk -F '=' '{print $2}' | sed 's/://g')
-    # aws iam create-open-id-connect-provider --url $oidc_issuer_url --thumbprint-list $thumbprint
+  if [[ -z $(aws eks list-addons --cluster-name $cluster_name --no-cli-pager | jq -r '.addons[]' | grep "aws-ebs-csi-driver") ]]; then
+    echo "EBS CSI Driver is not installed, installing..."
+    add_csi
+  else
+    echo "EBS CSI Driver already installed for cluster: $cluster_name"
   fi
-
-  create_trust_policy
-  
-  echo "Create AmazonEKS_EBS_CSI_DriverRole"
-  aws iam create-role \
-    --role-name AmazonEKS_EBS_CSI_DriverRole \
-    --assume-role-policy-document file://"aws-ebs-csi-driver-trust-policy.json" \
-    --no-cli-pager  # Prevent cmd output from going to 'less'
-    
-  echo "Attach Role and Policy"
-  aws iam attach-role-policy \
-    --role-name AmazonEKS_EBS_CSI_DriverRole \
-    --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-    
-  echo "Annotate ServiceAccount"
-  kubectl annotate serviceaccount ebs-csi-controller-sa \
-      -n kube-system --overwrite \
-      eks.amazonaws.com/role-arn=arn:aws:iam::${aws_account_id}:role/AmazonEKS_EBS_CSI_DriverRole
 }
 
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then

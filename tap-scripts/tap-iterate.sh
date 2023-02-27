@@ -15,7 +15,7 @@ chmod +x var-input-validatation.sh
 
 ./var-input-validatation.sh
 
-echo  "ITERATE Cluster - Login and install AWS EKS CSI Driver"
+echo  "ITERATE Cluster - Login and check AWS EKS CSI Driver"
 ./eks-csi.sh -c $TAP_ITERATE_CLUSTER_NAME
 
 echo "Step 1 => installing tanzu essential in iterate cluster !!!"
