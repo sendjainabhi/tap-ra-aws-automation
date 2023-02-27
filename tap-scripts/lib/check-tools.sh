@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 check_for_awk(){
   echo "Checking for awk..."

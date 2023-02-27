@@ -1,13 +1,14 @@
 #!/bin/bash
+# set -e
 
 usage(){
   echo "Usage: eks-csi-setup.sh "
   echo ""
   echo "Pre-requisites:"
   echo "  A EKS clsuter"
-  echo "  A logged in `aws` CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
-  echo "  `eksctl` CLI: https://eksctl.io/introduction/#installation"
-  echo "  `kubectl` CLI: https://kubernetes.io/docs/tasks/tools/"
+  echo "  A logged in aws CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html"
+  echo "  eksctl CLI: https://eksctl.io/introduction/#installation"
+  echo "  kubectl CLI: https://kubernetes.io/docs/tasks/tools/"
   echo ""
   echo "Parameters:"
   echo "  -c <cluster_name>"
@@ -88,36 +89,42 @@ get_oidc_info(){
 }
 
 remove_csi(){
-  echo "Removing EBS CSI Driver from cluster, if it is not installed expect not found errors"
-  echo "Detach IAM role and policy"
-  aws iam detach-role-policy \
-    --role-name AmazonEKS_EBS_CSI_DriverRole \
-    --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-    
-  echo "Delete IAM role"
-  aws iam delete-role \
-    --role-name AmazonEKS_EBS_CSI_DriverRole
+  echo "Check if EBS CSI Driver is installed for cluster: $cluster_name"
+  if [[ -z $(aws eks list-addons --cluster-name $cluster_name --no-cli-pager | jq -r '.addons[]' | grep "aws-ebs-csi-driver") ]]; then
+    echo "EBS CSI Driver is currently not installed"
+  else
+    echo "EBS CSI Driver is installed, removing..."
+    echo "Detach IAM role and policy"
+    aws iam detach-role-policy \
+      --role-name AmazonEKS_EBS_CSI_DriverRole \
+      --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+      
+    echo "Delete IAM role"
+    aws iam delete-role \
+      --role-name AmazonEKS_EBS_CSI_DriverRole
 
-  echo "Delete OIDC Connect Provider for arn: $oidc_arn"
-  aws iam delete-open-id-connect-provider --open-id-connect-provider-arn $oidc_arn
+    echo "Delete OIDC Connect Provider for arn: $oidc_arn"
+    aws iam delete-open-id-connect-provider --open-id-connect-provider-arn $oidc_arn
 
-  # On MacOS this cmd lands in `less` to display json pausing execution and requireding 'q' to be pressed to continue
-  echo "Delete aws-ebs-csi-driver addon"
-  aws eks delete-addon \
-    --cluster-name $cluster_name \
-    --addon-name aws-ebs-csi-driver \
-    --no-cli-pager  # Prevent cmd output from going to 'less'
+    echo "Delete aws-ebs-csi-driver addon"
+    aws eks delete-addon \
+      --cluster-name $cluster_name \
+      --addon-name aws-ebs-csi-driver \
+      --no-cli-pager  # Prevent cmd output from going to 'less'
 
-  # Sometimes the create starts before this is finished in AWS
-  for (( i=0; i<10; i++ ))
-  do
-    sleep 1
-    if [[ -z $(aws iam list-open-id-connect-providers --no-cli-pager| grep $oidc_id) ]]; then
-      echo "Deleted aws-ebs-csi-driver addon"
-      echo ""
-      break
-    fi
-  done
+    for (( i=0; i<10; i++ ))
+    do
+      echo "Deletion may take time, sleeping: " $(( ($i + 1)*3))
+      sleep 3
+      echo "$(aws iam list-open-id-connect-providers --no-cli-pager | grep $oidc_id)"
+      # This is not quite correct. Very ocassionally deletion has not completed, but re-creation begins anyway, causing an error. 
+      if [[ -z $(aws iam list-open-id-connect-providers --no-cli-pager | grep $oidc_id) ]]; then
+        echo "Deleted aws-ebs-csi-driver addon"
+        echo ""
+        break
+      fi
+    done
+  fi
 }
 
 main(){
@@ -130,7 +137,7 @@ main(){
   aws_account_id=""
 
   source var.conf
-  aws_account_id=$(aws sts get-caller-identity --query "Account" --output text)
+  aws_account_id=$(aws sts get-caller-identity --query "Account" --output text --no-cli-pager)
 
   while (( "$#" )); do
       case "$1" in
@@ -141,12 +148,12 @@ main(){
         -c) 
           shift
           cluster_name=$1
-          echo "cluster_name: $cluster_name"
+          echo "Input cluster_name: $cluster_name"
           ;;
         -r) 
           shift
           aws_region=$1
-          echo "aws_region: $aws_region"
+          echo "Input aws_region: $aws_region"
           ;;
         --remove)
           cluster_login
@@ -168,7 +175,12 @@ main(){
       shift
     done
 
+  echo "Using cluster_name: $cluster_name"
+  echo "Using aws_region: $aws_region"
+  echo "Using aws_account_id: $aws_account_id"
+
   input_validation
+  echo "cluster_login: $cluster_name in $aws_region"
   cluster_login
 
   if [[ $(aws eks describe-cluster --name $cluster_name --query "cluster.version" --output text) < '1.23' ]]; then

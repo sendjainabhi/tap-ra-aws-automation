@@ -1,4 +1,4 @@
-
+#!/bin/bash
 
 source var.conf
 
@@ -9,7 +9,7 @@ then
     exit 0 
 fi 
 
-if [ -z "$registry_url" ] || [ -z "$registry_user" ] ||  [ -z "$registry_password" ] || [ -z "$tap_run_domain" ] || [ -z "$alv_domain" ] 
+if [ -z "$registry_url" ] || [ -z "$registry_user" ] ||  [ -z "$registry_password" ] || [ -z "$tap_run_domain" ] || [ -z "$tap_iterate_domain" ]
 then 
     echo 'Error : Any of registry_url,registry_user,registry_password,tap_run_domain or alv_domain fileds cannot be leave empty into var.conf , please add appropriate value!' 
     exit 0 
