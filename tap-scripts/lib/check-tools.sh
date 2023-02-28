@@ -24,10 +24,13 @@ check_for_aws(){
 check_for_eksctl(){
   echo "Checking for eksctl CLI..."
   if ! command -v eksctl &> /dev/null; then
-    echo "eksctl is not installed. See https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html" >&2
-    exit 1
+    echo "eksctl is not installed. See https://docs.aws.amazon.com/eks/latest/userguide/eksctl.html"
+    echo "Installing eksctl"
+    echo "Downlaoding: https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_$(uname -m).tar.gz"
+    curl --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_$(uname -m).tar.gz" | tar xz -C /tmp
+    sudo mv /tmp/eksctl /usr/local/bin/eksctl
   fi
-
+  
   eksctl  version
 }
 
@@ -38,7 +41,8 @@ check_for_kubectl(){
     exit 1
   fi
 
-  kubectl version --client | grep "Client Version"
+  echo "kubectl clientVersion version"
+  kubectl version -ojson | jq '.clientVersion' -r
 }
 
 check_for_tanzu(){

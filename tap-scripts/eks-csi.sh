@@ -22,6 +22,15 @@ usage(){
   echo ""
 }
 
+cluster_login(){
+  echo ""
+  echo "Login to $cluster_name in $aws_region"
+  aws eks --region $aws_region update-kubeconfig --name $cluster_name
+  # This can be enhanced to use `k config use-context` if it is already in kube/config 
+  # echo "Using Kubernetes context: arn:aws:eks:${aws_region}:${aws_account_id}:cluster/${cluster_name}"
+  # kubectl config use-context "arn:aws:eks:${aws_region}:${aws_account_id}:cluster/${cluster_name}"
+}
+
 check_tooling(){
   check_for_kubectl
   check_for_aws
@@ -54,7 +63,7 @@ input_validation(){
 
 create_trust_policy(){
   echo "Create Trust Policy json"
-cat>aws-ebs-csi-driver-trust-policy.json <<EOF
+cat>aws-ebs-csi-driver-trust-policy-$cluster_name.json <<EOF
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -74,19 +83,21 @@ cat>aws-ebs-csi-driver-trust-policy.json <<EOF
   ]
 }
 EOF
-  cat aws-ebs-csi-driver-trust-policy.json
+  cat aws-ebs-csi-driver-trust-policy-$cluster_name.json
 }
 
-get_oidc_info(){
-  oidc_id=$(aws eks describe-cluster --name $cluster_name --query "cluster.identity.oidc.issuer" --output text | awk -F '/' '{print $NF}')
+get_oidc(){
+  # Every cluster has it's own oidc.issuer
+  oidc_issuer_url=$(aws eks describe-cluster --name $cluster_name --query "cluster.identity.oidc.issuer" --output text)
 
-  if [ -z "$oidc_id" ]; then
-    echo "Error: Unable to get oidc_id from `aws eks`"
+  if [ -z "$oidc_issuer_url" ]; then
+    echo "Error: Unable to get oidc_id from 'aws eks' for $cluster_name"
     exit 1
   fi
 
+  oidc_id=$(echo $oidc_issuer_url | awk -F '/' '{print $NF}')
   oidc_arn="arn:aws:iam::${aws_account_id}:oidc-provider/oidc.eks.${aws_region}.amazonaws.com/id/${oidc_id}"
-  echo "oidc_arn: $oidc_arn"
+  echo "Cluster $cluster_name oidc_arn: $oidc_arn"
 }
 
 remove_csi(){
@@ -95,7 +106,14 @@ remove_csi(){
     echo "EBS CSI Driver is currently not installed"
   else
     echo "EBS CSI Driver is installed, removing..."
-    remove_csi_role_and_policy
+    echo "Detach IAM role from AWS managed policy"
+    aws iam detach-role-policy \
+      --role-name AmazonEKS_EBS_CSI_DriverRole_$cluster_name \
+      --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+      
+    echo "Delete IAM role"
+    aws iam delete-role \
+      --role-name AmazonEKS_EBS_CSI_DriverRole_$cluster_name
     
     echo "Delete OIDC Connect Provider for arn: $oidc_arn"
     aws iam delete-open-id-connect-provider --open-id-connect-provider-arn $oidc_arn
@@ -104,15 +122,13 @@ remove_csi(){
     aws eks delete-addon \
       --cluster-name $cluster_name \
       --addon-name aws-ebs-csi-driver \
-      --no-cli-pager  # Prevent cmd output from going to 'less'
+      --no-cli-pager 
 
     for (( i=0; i<10; i++ ))
     do
       echo "Deletion may take time, sleeping: " $((($i + 1)*3))
       sleep 3
-      echo "$(aws iam list-open-id-connect-providers --no-cli-pager | grep $oidc_id)"
-      # This is not quite correct. Very ocassionally deletion has not completed, but re-creation begins anyway, causing an error. 
-      if [[ -z $(aws iam list-open-id-connect-providers --no-cli-pager | grep $oidc_id) ]]; then
+      if [[ -z $(kubectl -n kube-system get deployments.apps | grep ebs-csi-controller) ]]; then
         echo "Deleted aws-ebs-csi-driver addon"
         echo ""
         break
@@ -121,64 +137,48 @@ remove_csi(){
   fi
 }
 
-remove_csi_role_and_policy(){
-  echo "Check if the EBS CSI Driver Role can be removed"
-  if [[ -z $(aws iam list-open-id-connect-providers --no-cli-pager | jq --arg oidc_arn "$oidc_arn" '.OpenIDConnectProviderList[].Arn != $oidc_arn' | grep true) ]]; then
-    echo "This is the last EBS CSI OIDC Provider, remove the role"
-    echo "Detach IAM role and policy"
-    aws iam detach-role-policy \
-      --role-name AmazonEKS_EBS_CSI_DriverRole \
-      --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
-      
-    echo "Delete IAM role"
-    aws iam delete-role \
-      --role-name AmazonEKS_EBS_CSI_DriverRole
-  fi
-}
-
 add_csi(){
-  #https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
   #https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html
-  echo "Create EKS addon for aws-ebs-csi-driver"
-  aws eks create-addon \
-    --cluster-name $cluster_name \
-    --addon-name aws-ebs-csi-driver \
-    --service-account-role-arn "arn:aws:iam::${aws_account_id}:role/AmazonEKS_EBS_CSI_DriverRole" \
-    --no-cli-pager  # Prevent cmd output from going to 'less'
+  get_oidc
 
+  # Creating an IAM OIDC provider for your cluster 
   # https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html
   if [[ -z $(aws iam list-open-id-connect-providers | grep $oidc_id) ]]; then
     echo "Creating IAM OIDC provider for $cluster_name"
     eksctl utils associate-iam-oidc-provider --region $aws_region --cluster $cluster_name --approve
 
-    # An more complex alternative is using: aws iam create-open-id-connect-provider
-    # oidc_issuer_url=$(aws eks describe-cluster --name tap-build --query "cluster.identity.oidc.issuer" --output text)
-    # thumbprint=$(aws eks describe-cluster --name tap-build | jq '.cluster.certificateAuthority.data' -r | base64 -d | openssl x509 -fingerprint -noout | awk -F '=' '{print $2}' | sed 's/://g')
-    # aws iam create-open-id-connect-provider --url $oidc_issuer_url --thumbprint-list $thumbprint
   fi
 
-  create_trust_policy
-  
-  echo "Create AmazonEKS_EBS_CSI_DriverRole"
+  # Creating the Amazon EBS CSI driver IAM role for service accounts 
+  # https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
+  if [ ! -f aws-ebs-csi-driver-trust-policy-$cluster_name.json ]; then
+    create_trust_policy
+  fi
+
+  echo "Create AmazonEKS_EBS_CSI_DriverRole_$cluster_name"
   aws iam create-role \
-    --role-name AmazonEKS_EBS_CSI_DriverRole \
-    --assume-role-policy-document file://"aws-ebs-csi-driver-trust-policy.json" \
-    --no-cli-pager  # Prevent cmd output from going to 'less'
+    --role-name AmazonEKS_EBS_CSI_DriverRole_$cluster_name \
+    --assume-role-policy-document file://"aws-ebs-csi-driver-trust-policy-$cluster_name.json" \
+    --no-cli-pager
     
-  echo "Attach Role and Policy"
+  echo "Attach Role to the AWS managed Policy AmazonEBSCSIDriverPolicy"
+  # https://docs.aws.amazon.com/eks/latest/userguide/security-iam-awsmanpol.html#security-iam-awsmanpol-AmazonEBSCSIDriverServiceRolePolicy
   aws iam attach-role-policy \
-    --role-name AmazonEKS_EBS_CSI_DriverRole \
+    --role-name AmazonEKS_EBS_CSI_DriverRole_$cluster_name \
     --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
     
-  echo "Annotate ServiceAccount"
-  kubectl annotate serviceaccount ebs-csi-controller-sa \
-      -n kube-system --overwrite \
-      eks.amazonaws.com/role-arn=arn:aws:iam::${aws_account_id}:role/AmazonEKS_EBS_CSI_DriverRole  
+  # The Amazon EBS CSI add-on installs the 'ebs-csi-controller' Deployment and creates the 'ebs-csi-controller-sa' ServiceAccount
+  # https://docs.aws.amazon.com/eks/latest/userguide/managing-ebs-csi.html#adding-ebs-csi-eks-add-on
+  echo "Create EKS addon for aws-ebs-csi-driver"
+  aws eks create-addon \
+    --cluster-name $cluster_name \
+    --addon-name aws-ebs-csi-driver \
+    --service-account-role-arn "arn:aws:iam::${aws_account_id}:role/AmazonEKS_EBS_CSI_DriverRole_$cluster_name" \
+    --tags cluster=$cluster_name --no-cli-pager
 }
 
 main(){
   source lib/check-tools.sh
-  source lib/utilities.sh
   check_tooling
 
   cluster_name=""
@@ -206,7 +206,7 @@ main(){
           ;;
         --remove)
           cluster_login
-          get_oidc_info
+          get_oidc
           remove_csi
           exit 0
           ;;
@@ -236,8 +236,6 @@ main(){
     echo "EKS Kubernetes version is less than 1.23, not installing CSI Driver Plugin. See https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html"
     exit 0
   fi
-
-  get_oidc_info
 
   if [[ -z $(aws eks list-addons --cluster-name $cluster_name --no-cli-pager | jq -r '.addons[]' | grep "aws-ebs-csi-driver") ]]; then
     echo "EBS CSI Driver is not installed, installing..."
