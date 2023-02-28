@@ -22,8 +22,7 @@ echo "Step 3 => Setup TAP Run Cluster"
 ./tap-run.sh
 echo "Step 4 => Setup TAP Build Cluster"
 ./tap-build.sh
-
-echo "Step 4 => Setup TAP Build Cluster"
+echo "Step 5 => Setup TAP Iterate Cluster"
 ./tap-iterate.sh
 
 echo "pick an external ip from service output and configure DNS wildcard records in your dns server for view and run cluster"

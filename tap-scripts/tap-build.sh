@@ -1,21 +1,22 @@
 #!/bin/bash
 # Copyright 2022 VMware, Inc.
 # SPDX-License-Identifier: BSD-2-Clause
+
+set -e
 source var.conf
 
 chmod +x tanzu-essential-setup.sh
 chmod +x tap-repo.sh
 chmod +x tap-build-profile.sh
 chmod +x tap-dev-namespace.sh
-chmod +x tanzu-cli-setup.sh
+chmod +x eks-csi.sh
 
 chmod +x var-input-validatation.sh
 
 ./var-input-validatation.sh
 
-echo  "Login to BUILD Cluster !!! "
-aws eks --region $aws_region update-kubeconfig --name ${TAP_BUILD_CLUSTER_NAME}
-
+echo  "BUILD Cluster - Login and check AWS EKS CSI Driver"
+./eks-csi.sh -c $TAP_BUILD_CLUSTER_NAME
 
 echo "Step 1 => installing tanzu essential in BUILD Cluster !!!"
 ./tanzu-essential-setup.sh
