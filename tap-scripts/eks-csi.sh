@@ -95,6 +95,7 @@ get_oidc(){
     exit 1
   fi
 
+  echo "oidc_issuer_url: $oidc_issuer_url"
   oidc_id=$(echo $oidc_issuer_url | awk -F '/' '{print $NF}')
   oidc_arn="arn:aws:iam::${aws_account_id}:oidc-provider/oidc.eks.${aws_region}.amazonaws.com/id/${oidc_id}"
   echo "Cluster $cluster_name oidc_arn: $oidc_arn"
@@ -123,6 +124,10 @@ remove_csi(){
       --cluster-name $cluster_name \
       --addon-name aws-ebs-csi-driver \
       --no-cli-pager 
+    # --preserve 
+    # preserves the add-on software on your cluster (ebs-csi-controller and ebs-csi-controller-sa)
+    # but Amazon EKS stops managing any settings for the add-on. 
+    # If an IAM account is associated with the add-on, it isn't removed.
 
     for (( i=0; i<10; i++ ))
     do
@@ -151,9 +156,7 @@ add_csi(){
 
   # Creating the Amazon EBS CSI driver IAM role for service accounts 
   # https://docs.aws.amazon.com/eks/latest/userguide/csi-iam-role.html
-  if [ ! -f aws-ebs-csi-driver-trust-policy-$cluster_name.json ]; then
-    create_trust_policy
-  fi
+  create_trust_policy
 
   echo "Create AmazonEKS_EBS_CSI_DriverRole_$cluster_name"
   aws iam create-role \
