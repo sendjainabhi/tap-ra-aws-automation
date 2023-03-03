@@ -31,7 +31,7 @@ check_for_eksctl(){
     sudo mv /tmp/eksctl /usr/local/bin/eksctl
   fi
   
-  eksctl  version
+  eksctl version
 }
 
 check_for_kubectl(){

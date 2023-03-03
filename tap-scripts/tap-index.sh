@@ -30,5 +30,5 @@ echo "example view cluster - *.view.customer0.io ==> <ingress external ip/cname>
 echo "example run cluster - *.run.customer0.io ==> <ingress external ip/cname> " 
 echo "example iterate cluster - *.iter.customer0.io ==> <ingress external ip/cname> " 
 
-echo "Step 5 => Deploy sample app"
+echo "Step 6 => Deploy sample app"
 ./tap-demo-app-deploy.sh
