@@ -43,7 +43,7 @@ wget $tanzucliurl --header="Authorization: Bearer ${access_token}" -O $HOME/tanz
 tar -xvf $HOME/tanzu/$tanzuclifilename -C $HOME/tanzu
 
 export VERSION=v0.25.4
-install $HOME/tanzu/cli/core/$VERSION/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
+sudo install $HOME/tanzu/cli/core/$VERSION/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
 
 
 # install yq package 
@@ -75,7 +75,7 @@ wget $tanzucliurl --header="Authorization: Bearer ${access_token}" -O $HOME/tanz
 tar -xvf $HOME/tanzu/$tanzuclifilename -C $HOME/tanzu
 
 export VERSION=v0.25.4
- install $HOME/tanzu/cli/core/$VERSION/tanzu-core-linux_amd64 /usr/local/bin/tanzu
+sudo install $HOME/tanzu/cli/core/$VERSION/tanzu-core-linux_amd64 /usr/local/bin/tanzu
 
 # install yq package 
  wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
