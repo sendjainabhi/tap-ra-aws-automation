@@ -70,7 +70,7 @@ resource "aws_eks_node_group" "run" {
   subnet_ids      = aws_subnet.private[*].id
 
   scaling_config {
-    desired_size = 3
+    desired_size = 4
     max_size     = 5
     min_size     = 1
   }

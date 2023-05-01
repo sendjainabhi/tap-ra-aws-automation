@@ -4,7 +4,7 @@
 source ../var.conf
 
 #delete tap from build cluster
-aws eks --region $aws_region update-kubeconfig --name tap-build
+aws eks --region $aws_region update-kubeconfig --name $TAP_BUILD_CLUSTER_NAME
 echo "deleting tap from build cluster"
 #delete all tap packages 
 tanzu package installed delete tap -n tap-install --yes
@@ -21,8 +21,10 @@ kubectl delete ns tap-install
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
+kubectl delete ns tanzu-cluster-essentials
+
 #delete tap from view cluster
-aws eks --region $aws_region update-kubeconfig --name tap-view
+aws eks --region $aws_region update-kubeconfig --name $TAP_VIEW_CLUSTER_NAME
 echo "deleting tap from view cluster"
 #delete all tap packages 
 tanzu package installed delete tap -n tap-install --yes
@@ -35,12 +37,16 @@ kubectl delete secret -n tap-install --all
 
 kubectl delete ns tap-install
 
+
 #uninstall tanzu essentials
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
+kubectl delete ns tanzu-cluster-essentials
+
+
 #delete tap from run cluster
-aws eks --region $aws_region update-kubeconfig --name tap-run
+aws eks --region $aws_region update-kubeconfig --name $TAP_RUN_CLUSTER_NAME
 echo "deleting tap from run cluster"
 #delete all tap packages 
 tanzu package installed delete tap -n tap-install --yes
@@ -53,12 +59,16 @@ kubectl delete secret -n tap-install --all
 
 kubectl delete ns tap-install
 
+
 #uninstall tanzu essentials
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
+kubectl delete ns tanzu-cluster-essentials
+
+
 #delete tap from iterate cluster
-aws eks --region $aws_region update-kubeconfig --name tap-iterate
+aws eks --region $aws_region update-kubeconfig --name $TAP_ITERATE_CLUSTER_NAME
 echo "deleting tap from iterate cluster"
 #delete all tap packages 
 tanzu package installed delete tap -n tap-install --yes
@@ -72,6 +82,7 @@ kubectl delete secret -n tap-install --all
 kubectl delete serviceaccount -n tap-install --all
 
 kubectl delete ns tap-install
+kubectl delete ns tanzu-cluster-essentials
 
 #uninstall tanzu essentials
 cd $HOME/tanzu-cluster-essentials

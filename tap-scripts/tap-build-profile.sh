@@ -8,9 +8,6 @@ source var.conf
 
 #kubectl config use-context $target_context
 
-#read -p "Enter custom registry url (harbor/azure registry etc): " registry_url
-#read -p "Enter custom registry user: " registry_user
-#read -p "Enter custom registry password: " registry_password
 
 #export TAP_NAMESPACE="tap-install"
 export TAP_REGISTRY_USER=$registry_user
@@ -32,12 +29,12 @@ export INSTALL_REGISTRY_PASSWORD=$tanzu_net_reg_password
 cat <<EOF | tee tap-values-build.yaml
 profile: build
 ceip_policy_disclosed: true
+
 buildservice:
   kp_default_repository: "${TAP_REGISTRY_SERVER}/build-service"
-  kp_default_repository_username: "${TAP_REGISTRY_USER}"
-  kp_default_repository_password: "${TAP_REGISTRY_PASSWORD}"
-  tanzunet_username: "${INSTALL_REGISTRY_USERNAME}"
-  tanzunet_password: "${INSTALL_REGISTRY_PASSWORD}"
+  kp_default_repository_secret:
+    name: registry-credentials
+    namespace: "${TAP_NAMESPACE}"
 supply_chain: basic
 ootb_supply_chain_basic:    
   registry:
@@ -49,7 +46,7 @@ ootb_supply_chain_basic:
   service_account: default
 grype:
   namespace: "default" 
-  targetImagePullSecret: "tap-registry"
+  targetImagePullSecret: registry-credentials
   metadataStore:
     url: "http://metadata-store.${tap_view_domain}"
     caSecret:
@@ -59,15 +56,14 @@ grype:
         name: store-auth-token
         importFromNamespace: metadata-store-secrets
 scanning:
-  metadataStore:
-    url: "" # Disable embedded integration since it's deprecated
-
+  metadataStore: {} # Deactivate the Supply Chain Security Tools - Store integration.
+  
 image_policy_webhook:
   allow_unmatched_images: true
   
 appliveview_connector:
   backend:
-    sslDisabled: "true"
+    sslDeactivated: "true"
     ingressEnabled: "true"
     host: appliveview.$tap_view_domain
 

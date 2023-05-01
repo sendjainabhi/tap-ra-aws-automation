@@ -26,19 +26,12 @@ profile: iterate
 
 ceip_policy_disclosed: true
 
-excluded_packages:
-  - policy.apps.tanzu.vmware.com
-
 buildservice:
   kp_default_repository: "${TAP_REGISTRY_SERVER}/build-service"
-  kp_default_repository_username: "${TAP_REGISTRY_USER}"
-  kp_default_repository_password: "${TAP_REGISTRY_PASSWORD}"
-  tanzunet_username: "${INSTALL_REGISTRY_USERNAME}"
-  tanzunet_password: "${INSTALL_REGISTRY_PASSWORD}"
-  descriptor_name: "full"
-  enable_automatic_dependency_updates: true
-
-
+  kp_default_repository_secret:
+    name: registry-credentials
+    namespace: "${TAP_NAMESPACE}"
+  
 supply_chain: basic
 ootb_supply_chain_basic:
   registry:

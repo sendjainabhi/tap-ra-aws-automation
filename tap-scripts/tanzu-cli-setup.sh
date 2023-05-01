@@ -15,8 +15,6 @@ access_token=$(echo ${token} | jq -r .access_token)
 
 curl -i -H "Accept: application/json" -H "Content-Type: application/json" -H "Authorization: Bearer ${access_token}" -X GET https://network.pivotal.io/api/v2/authentication
 
-
-
 echo "Enter your terminal OS as (l or m)- l as linux , m as mac in var config file"
 
 var="m"
@@ -34,16 +32,17 @@ if [ "$os" == "$var" ]; then
 #file name - mac= tanzu-framework-darwin-amd64.tar , linux= tanzu-framework-linux-amd64.tar
 
 
-tanzucliurl=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1239018/product_files/1404617/download
-tanzuclifilename=tanzu-framework-darwin-amd64.tar
+
 
 mkdir $HOME/tanzu
 cd $HOME/tanzu
-wget $tanzucliurl --header="Authorization: Bearer ${access_token}" -O $HOME/tanzu/$tanzuclifilename
-tar -xvf $HOME/tanzu/$tanzuclifilename -C $HOME/tanzu
+wget $tanzucliurl_m --header="Authorization: Bearer ${access_token}" -O $HOME/tanzu/$tanzuclifilename_m
+tar -xvf $HOME/tanzu/$tanzuclifilename_m -C $HOME/tanzu
 
-export VERSION=v0.25.4
+export TANZU_CLI_NO_INIT=true
+export VERSION=$tanzucli_version
 install $HOME/tanzu/cli/core/$VERSION/tanzu-core-darwin_amd64 /usr/local/bin/tanzu
+
 
 
 # install yq package 
@@ -65,16 +64,14 @@ else
 
 #file name - mac= tanzu-framework-darwin-amd64.tar , linux= tanzu-framework-linux-amd64.tar
 
-tanzucliurl=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1239018/product_files/1404618/download
-tanzuclifilename=tanzu-framework-linux-amd64.tar
-
 
 mkdir $HOME/tanzu
 cd $HOME/tanzu
-wget $tanzucliurl --header="Authorization: Bearer ${access_token}" -O $HOME/tanzu/$tanzuclifilename
-tar -xvf $HOME/tanzu/$tanzuclifilename -C $HOME/tanzu
+wget $tanzucliurl_l --header="Authorization: Bearer ${access_token}" -O $HOME/tanzu/$tanzuclifilename_l
+tar -xvf $HOME/tanzu/$tanzuclifilename_l -C $HOME/tanzu
 
-export VERSION=v0.25.4
+export VERSION=$tanzucli_version
+export TANZU_CLI_NO_INIT=true
  install $HOME/tanzu/cli/core/$VERSION/tanzu-core-linux_amd64 /usr/local/bin/tanzu
 
 # install yq package 
@@ -84,7 +81,7 @@ yq --version
 
 fi
 
-export TANZU_CLI_NO_INIT=true
+
 #tanzu init
 tanzu version
 

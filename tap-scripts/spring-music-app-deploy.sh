@@ -22,7 +22,7 @@ tanzu apps workload create spring-music \
 --yes
 
 
-#sleep 20
+sleep 40
 
 tanzu apps workload list
 

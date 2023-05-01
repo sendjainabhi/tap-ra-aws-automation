@@ -16,6 +16,8 @@ cd $HOME/tanzu-cluster-essentials
 
 kubectl delete ns tap-install
 
+kubectl delete ns tanzu-cluster-essentials
+
 # you can uncomment and execute below commands to delete tanzu cli from terminal
 #sudo rm -rf $HOME/tanzu/cli        # Remove previously downloaded cli files
 #sudo rm /usr/local/bin/tanzu  # Remove CLI binary (executable)
@@ -25,3 +27,6 @@ kubectl delete ns tap-install
 #sudo rm -rf ~/Library/Application\ Support/tanzu-cli/* # Remove plug-ins
 
 echo "tanuz cli and tap packages deleted"
+
+../eks-csi-setup.sh -c tap-view --remove
+echo "eks csi cdriver deleted"

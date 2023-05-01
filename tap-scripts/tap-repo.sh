@@ -26,6 +26,15 @@ tanzu secret registry add tap-registry \
   --server "${INSTALL_REGISTRY_HOSTNAME}" \
   --export-to-all-namespaces --yes --namespace "${TAP_NAMESPACE}"
 
+# internal registry secret 
+  tanzu secret registry add registry-credentials \
+    --server   $registry_url \
+    --username $registry_user \
+    --password $registry_password \
+    --namespace tap-install \
+    --export-to-all-namespaces \
+    --yes
+
 # tanzu repo add
 tanzu package repository add tanzu-tap-repository \
   --url registry.tanzu.vmware.com/tanzu-application-platform/tap-packages:$TAP_VERSION \

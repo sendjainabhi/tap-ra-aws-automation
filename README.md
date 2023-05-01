@@ -1,12 +1,11 @@
 ## Purpose
 
-This project is designed to build a Tanzu Application Platform 1.4.x multicluster instances on AWS EKS that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
+This project is designed to build a Tanzu Application Platform 1.5.x multicluster instances on AWS EKS that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
 
 This is 2 steps automation with minimum inputs into config files. 
 
 * **Step 1** to create all aws resources for tap like VPC , 4 eks clusters and associated security and Iam group , node etc
-* **Step 2** Install AWS CSI driver in all eks clusters.
-* **Step 3** to install tap profiles into eks clusters.
+* **Step 2** to install tap profiles into eks clusters.
 
 Specifically, this automation will build:
 - a aws VPC (internet facing)
@@ -41,6 +40,7 @@ export AWS_ACCESS_KEY_ID=<your AWS access key>
 export AWS_SECRET_ACCESS_KEY=<your AWS secret access key>
 export AWS_REGION=us-east-1  # ensure the region is set correctly. this must agree with what you set in the tf files below.
 ```
+**Note** - Even if you are only running TAP scripts on existing eks clusters , please set above `aws` environment variables.
 
 ### Prepare Terraform
 
@@ -58,12 +58,29 @@ export AWS_REGION=us-east-1  # ensure the region is set correctly. this must agr
 Add following details into `/tap-scripts/var.conf` file to fullfill tap prerequisite. Examples and default values given in below sample. All fields are mandatory and can't be leave blank and must be filled before executing the `tap-index.sh` . Please refer below sample config file. 
 ```
 
+
 TAP_DEV_NAMESPACE="default"
 os=<terminal os as m or l.  m for Mac , l for linux/ubuntu>
+INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:79abddbc3b49b44fc368fede0dab93c266ff7c1fe305e2d555ed52d00361b446
 INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
-INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:54bf611711923dccd7c7f10603c846782b90644d48f1cb570b43a082d18e23b9
+TAP_VERSION=1.5.0
+K8_Version=1.24
+
+#tanzu cli
+tanzucliurl_m=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1287412/product_files/1446071/download
+tanzuclifilename_m=tanzu-framework-darwin-amd64.tar
+tanzucliurl_l=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1287412/product_files/1446073/download
+tanzuclifilename_l=tanzu-framework-linux-amd64.tar
+tanzucli_version=v0.28.1
+
+#tanzu essential 
+tanzu_ess_filename_m=tanzu-cluster-essentials-darwin-amd64-1.5.0.tgz
+tanzu_ess_filename_l=tanzu-cluster-essentials-linux-amd64-1.5.0.tgz
+tanzu_ess_url_m=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1275537/product_files/1460874/download
+tanzu_ess_url_l=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1275537/product_files/1460876/download
+
+
 DOCKERHUB_REGISTRY_URL=index.docker.io
-TAP_VERSION=1.3.0
 TAP_NAMESPACE="tap-install"
 tanzu_net_reg_user=<Provide tanzu net user>
 tanzu_net_reg_password=<Provide tanzu net password>
@@ -72,16 +89,20 @@ aws_region=<aws region where tap eks clusters created>
 registry_url=<Provide user registry url>
 registry_user=<Provide user registry userid>
 registry_password=<Provide user registry password>
-tap_run_cnrs_domain=<run cluster sub domain example like : run.ab-tap.customer0.io >
-alv_domain=<app live view  sub domain example like :alv.ab-tap.customer0.io >
-TAP_RUN_CLUSTER_NAME="tap-run"
 TAP_GITHUB_TOKEN=< git hub token>
-tap_view_app_domain=<view  cluster sub domain example like :view.ab-tap.customer0.io>
+tap_run_domain=<run cluster sub domain example like : run.ab-tap.customer0.io >
+tap_view_domain=<view  cluster sub domain example like :view.ab-tap.customer0.io>
+tap_iterate_domain=<iterate cluster sub domain example like : iter.ab-tap.customer0.io>
 tap_git_catalog_url=<git catelog url example like : https://github.com/sendjainabhi/tap/blob/main/catalog-info.yaml>
+TAP_RUN_CLUSTER_NAME="tap-run"
+TAP_BUILD_CLUSTER_NAME="tap-build"
+TAP_VIEW_CLUSTER_NAME="tap-view"
+TAP_ITERATE_CLUSTER_NAME="tap-iterate"
 
 #tap demo app properties
-TAP_APP_NAME="tanzu-java-web-app"
-TAP_APP_GIT_URL="https://github.com/vmware-tanzu/application-accelerator-samples"
+TAP_APP_NAME="spring-music"
+TAP_APP_GIT_URL="https://github.com/PeterEltgroth/spring-music"
+
 
 ```
 ## Install TAP

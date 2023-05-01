@@ -25,6 +25,9 @@ export TAP_CNRS_DOMAIN=$tap_run_domain
 cat <<EOF | tee tap-values-run.yaml
 profile: run
 ceip_policy_disclosed: true
+shared:
+  ingress_domain: "${tap_run_domain}"
+
 supply_chain: basic
 
 excluded_packages:

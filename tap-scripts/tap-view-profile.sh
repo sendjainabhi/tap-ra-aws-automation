@@ -111,6 +111,14 @@ rules:
 - apiGroups: [ 'batch' ]
   resources: [ 'jobs', 'cronjobs' ]
   verbs: [ 'get', 'watch', 'list' ]
+- apiGroups: ['conventions.carto.run']
+  resources:
+  - podintents
+  verbs: ['get', 'watch', 'list']
+- apiGroups: ['appliveview.apps.tanzu.vmware.com']
+  resources:
+  - resourceinspectiongrants
+  verbs: ['get', 'watch', 'list', 'create']
 
 EOF
 
@@ -121,10 +129,21 @@ aws eks --region $aws_region update-kubeconfig --name ${TAP_BUILD_CLUSTER_NAME}
 kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
 
 CLUSTER_URL_BUILD=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
-CLUSTER_TOKEN_BUILD=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa tap-gui-viewer -o=json \
-	| jq -r '.secrets[0].name') -o=json \
-	| jq -r '.data["token"]' \
-	| base64 --decode)
+
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-gui-viewer
+  namespace: tap-gui
+  annotations:
+    kubernetes.io/service-account.name: tap-gui-viewer
+type: kubernetes.io/service-account-token
+EOF
+
+CLUSTER_TOKEN_BUILD=$(kubectl -n tap-gui get secret tap-gui-viewer -o=json \
+| jq -r '.data["token"]' \
+| base64 --decode)
 
 #switch to tap run cluster to get token 
 echo "login to run cluster to apply tap-gui-viewer-service-account-rbac.yaml"
@@ -132,10 +151,22 @@ aws eks --region $aws_region update-kubeconfig --name ${TAP_RUN_CLUSTER_NAME}
 kubectl apply -f tap-gui-viewer-service-account-rbac.yaml
 
 CLUSTER_URL_RUN=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
-CLUSTER_TOKEN_RUN=$(kubectl -n tap-gui get secret $(kubectl -n tap-gui get sa tap-gui-viewer -o=json \
-	| jq -r '.secrets[0].name') -o=json \
-	| jq -r '.data["token"]' \
-	| base64 --decode)
+
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tap-gui-viewer
+  namespace: tap-gui
+  annotations:
+    kubernetes.io/service-account.name: tap-gui-viewer
+type: kubernetes.io/service-account-token
+EOF
+
+
+CLUSTER_TOKEN_RUN=$(kubectl -n tap-gui get secret tap-gui-viewer -o=json \
+| jq -r '.data["token"]' \
+| base64 --decode)
 
 echo  "Login to View Cluster !!! "
 #login to kubernets eks view cluster
@@ -150,9 +181,9 @@ echo CLUSTER_TOKEN_BUILD: $CLUSTER_TOKEN_BUILD
 
 
 # set the following variables
-export TAP_REGISTRY_SERVER=$registry_url
-export TAP_REGISTRY_USER=$registry_user
-export TAP_REGISTRY_PASSWORD=$registry_password
+#export TAP_REGISTRY_SERVER=$registry_url
+#export TAP_REGISTRY_USER=$registry_user
+#export TAP_REGISTRY_PASSWORD=$registry_password
 
 
 

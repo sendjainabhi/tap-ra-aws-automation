@@ -16,6 +16,7 @@ chmod +x var-input-validatation.sh
 ./var-input-validatation.sh
 
 echo  "VIEW Cluster - Login and check AWS EKS CSI Driver"
+#aws eks --region $aws_region update-kubeconfig --name $TAP_VIEW_CLUSTER_NAME
 ./eks-csi.sh -c $TAP_VIEW_CLUSTER_NAME
 
 #kubectl config get-contexts
