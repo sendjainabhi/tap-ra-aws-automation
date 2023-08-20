@@ -98,6 +98,11 @@ rules:
   - sourcescans
   - imagescans
   - scanpolicies
+  - scantemplates
+  verbs: ['get', 'watch', 'list']
+- apiGroups: ['app-scanning.apps.tanzu.vmware.com']
+  resources:
+  - imagevulnerabilityscans
   verbs: ['get', 'watch', 'list']
 - apiGroups: ['tekton.dev']
   resources:
@@ -206,7 +211,9 @@ tap_gui:
     catalog:
       locations:
         - type: url
-          target: ${tap_git_catalog_url}
+          target: ${tap_git_catalog_url}     
+    auth:
+      allowGuestAccess: true
 
     kubernetes:
       serviceLocatorMethod:

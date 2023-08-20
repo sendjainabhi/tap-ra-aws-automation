@@ -1,6 +1,6 @@
 ## Purpose
 
-This project is designed to build a Tanzu Application Platform 1.5.x multicluster instances on AWS EKS that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
+This project is designed to build a Tanzu Application Platform 1.6.x multicluster instances on AWS EKS that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
 
 This is 2 steps automation with minimum inputs into config files. 
 
@@ -57,27 +57,12 @@ export AWS_REGION=us-east-1  # ensure the region is set correctly. this must agr
 
 Add following details into `/tap-scripts/var.conf` file to fullfill tap prerequisite. Examples and default values given in below sample. All fields are mandatory and can't be leave blank and must be filled before executing the `tap-index.sh` . Please refer below sample config file. 
 ```
-
-
 TAP_DEV_NAMESPACE="default"
 os=<terminal os as m or l.  m for Mac , l for linux/ubuntu>
-INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:79abddbc3b49b44fc368fede0dab93c266ff7c1fe305e2d555ed52d00361b446
+INSTALL_BUNDLE=registry.tanzu.vmware.com/tanzu-cluster-essentials/cluster-essentials-bundle@sha256:54e516b5d088198558d23cababb3f907cd8073892cacfb2496bb9d66886efe15
 INSTALL_REGISTRY_HOSTNAME=registry.tanzu.vmware.com
-TAP_VERSION=1.5.0
-K8_Version=1.24
-
-#tanzu cli
-tanzucliurl_m=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1287412/product_files/1446071/download
-tanzuclifilename_m=tanzu-framework-darwin-amd64.tar
-tanzucliurl_l=https://network.tanzu.vmware.com/api/v2/products/tanzu-application-platform/releases/1287412/product_files/1446073/download
-tanzuclifilename_l=tanzu-framework-linux-amd64.tar
-tanzucli_version=v0.28.1
-
-#tanzu essential 
-tanzu_ess_filename_m=tanzu-cluster-essentials-darwin-amd64-1.5.0.tgz
-tanzu_ess_filename_l=tanzu-cluster-essentials-linux-amd64-1.5.0.tgz
-tanzu_ess_url_m=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1275537/product_files/1460874/download
-tanzu_ess_url_l=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1275537/product_files/1460876/download
+TAP_VERSION=1.6.1
+K8_Version=1.26
 
 
 DOCKERHUB_REGISTRY_URL=index.docker.io
@@ -90,18 +75,33 @@ registry_url=<Provide user registry url>
 registry_user=<Provide user registry userid>
 registry_password=<Provide user registry password>
 TAP_GITHUB_TOKEN=< git hub token>
+
+#tap clusters dns
+
 tap_run_domain=<run cluster sub domain example like : run.ab-tap.customer0.io >
 tap_view_domain=<view  cluster sub domain example like :view.ab-tap.customer0.io>
 tap_iterate_domain=<iterate cluster sub domain example like : iter.ab-tap.customer0.io>
-tap_git_catalog_url=<git catelog url example like : https://github.com/sendjainabhi/tap/blob/main/catalog-info.yaml>
+tap_full_domain=<full cluster sub domain example like : full.ab-tap.customer0.io>
+
+
 TAP_RUN_CLUSTER_NAME="tap-run"
 TAP_BUILD_CLUSTER_NAME="tap-build"
 TAP_VIEW_CLUSTER_NAME="tap-view"
 TAP_ITERATE_CLUSTER_NAME="tap-iterate"
+TAP_FULL_CLUSTER_NAME="tap-full"
+tap_git_catalog_url=<git catelog url example like : https://github.com/sendjainabhi/tap/blob/main/catalog-info.yaml>
+
+#tanzu essential 
+tanzu_ess_filename_m=tanzu-cluster-essentials-darwin-amd64-1.6.0.tgz
+tanzu_ess_filename_l=tanzu-cluster-essentials-linux-amd64-1.6.0.tgz
+tanzu_ess_url_m=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1321952/product_files/1526700/download
+tanzu_ess_url_l=https://network.tanzu.vmware.com/api/v2/products/tanzu-cluster-essentials/releases/1321952/product_files/1526701/download
+
 
 #tap demo app properties
 TAP_APP_NAME="spring-music"
 TAP_APP_GIT_URL="https://github.com/PeterEltgroth/spring-music"
+
 
 
 ```
@@ -191,8 +191,18 @@ chmod +x /tap-scripts/tap-iterate.sh
 
 ```
 
-> **NOTE:** This TAP Version (1.3.0) has a bug in the policy-controller package that prevents it to start successfully and reconcile. It has been excluded in the configuration. Namespaces manually labeled to undergo signature verification will not be able to verify the signature of an image before it is let into the cluster
+* **To install full profile only , execute following step** 
 
+```
+
+#Step 1 - Execute Permission to tap-full.sh file
+chmod +x /tap-scripts/tap-full.sh
+
+#Step 2 - Execute tap-full.sh file 
+./tap-scripts/tap-full.sh
+
+
+```
 ### TAP scripts for specific tasks
 
 If you got stuck in any specific stage and need to resume installation , you can use following scripts.Please login to respective EKS cluster before executing these scripts.

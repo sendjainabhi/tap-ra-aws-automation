@@ -4,7 +4,7 @@ export TAP_APP_NAME=tanzu-java-web-app
 echo "Build source code in build cluster !!!"
 
 echo "Login to build cluster !!!"
-aws eks --region $aws_region update-kubeconfig --name tap-build
+aws eks --region $aws_region update-kubeconfig --name $TAP_BUILD_CLUSTER_NAME
 
 tanzu apps workload list
 
@@ -39,7 +39,7 @@ kubectl get configmap tanzu-java-web-app-deliverable -n ${TAP_DEV_NAMESPACE} -o 
 cat ${TAP_APP_NAME}-delivery.yaml
 
 echo "login to run cluster to deploy tap demo delivery workload"
-aws eks --region $aws_region update-kubeconfig --name tap-run
+aws eks --region $aws_region update-kubeconfig --name $TAP_RUN_CLUSTER_NAME
 
 kubectl apply -f ${TAP_APP_NAME}-delivery.yaml
 
