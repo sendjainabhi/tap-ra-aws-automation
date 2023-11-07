@@ -238,7 +238,7 @@ metadata_store:
   app_service_type: LoadBalancer
 appliveview:
   ingressEnabled: "true"
-  sslDisabled: "true"
+  sslDeactivated: "true"
 
 EOF
 

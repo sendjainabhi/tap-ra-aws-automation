@@ -25,20 +25,20 @@ variable "vpc_cidr" {
 variable "subnet_cidr_bits" {
   description = "The number of subnet bits for the CIDR."
   type        = number
-  default     = 8
+  default     = 4
 }
 
 variable "k8_version" {
   description = "Kubernetes installed version "
   type        = string
-  default     = "1.23"
+  default     = "1.26"
 }
 
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
   default = {
-    "Project"     = "tap"
+    "Project"     = "tap-t"
     "Environment" = "prod"
     "Owner"       = "acras"
   }

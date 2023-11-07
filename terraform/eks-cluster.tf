@@ -8,7 +8,7 @@ resource "aws_eks_cluster" "iterate" {
   version  = "${var.k8_version}"
 
   vpc_config {
-    # security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]
+    #security_group_ids      = [aws_security_group.eks_nodes.id,aws_security_group.allow_tls.id]
     subnet_ids              = flatten([aws_subnet.public[*].id, aws_subnet.private[*].id])
     endpoint_private_access = true
     endpoint_public_access  = true
@@ -31,7 +31,7 @@ resource "aws_eks_cluster" "build" {
   version  = "${var.k8_version}"
 
   vpc_config {
-    # security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]
+    security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.allow_tls.id]
     subnet_ids              = flatten([aws_subnet.public[*].id, aws_subnet.private[*].id])
     endpoint_private_access = true
     endpoint_public_access  = true
@@ -54,7 +54,7 @@ resource "aws_eks_cluster" "run" {
   version  = "${var.k8_version}"
 
   vpc_config {
-    # security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]
+    security_group_ids      = [aws_security_group.eks_cluster.id,aws_security_group.allow_tls.id]
     subnet_ids              = flatten([aws_subnet.public[*].id, aws_subnet.private[*].id])
     endpoint_private_access = true
     endpoint_public_access  = true
@@ -77,7 +77,7 @@ resource "aws_eks_cluster" "view" {
   version  = "${var.k8_version}"
 
   vpc_config {
-    # security_group_ids      = [aws_security_group.eks_cluster.id, aws_security_group.eks_nodes.id]
+    security_group_ids      = [aws_security_group.eks_cluster.id,aws_security_group.allow_tls.id]
     subnet_ids              = flatten([aws_subnet.public[*].id, aws_subnet.private[*].id])
     endpoint_private_access = true
     endpoint_public_access  = true
@@ -143,10 +143,37 @@ resource "aws_security_group_rule" "cluster_inbound" {
 
 resource "aws_security_group_rule" "cluster_outbound" {
   description              = "Allow cluster API Server to communicate with the worker nodes"
-  from_port                = 1024
+  from_port                = 0
   protocol                 = "tcp"
   security_group_id        = aws_security_group.eks_cluster.id
   source_security_group_id = aws_security_group.eks_nodes.id
   to_port                  = 65535
   type                     = "egress"
+}
+
+resource "aws_security_group" "allow_tls" {
+  name        = "allow_tls"
+  description = "Allow TLS inbound traffic"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description      = "TLS from VPC"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = [var.vpc_cidr]
+    #ipv6_cidr_blocks = [var.vpc_cidr]
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    #ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = "allow_tls"
+  }
 }

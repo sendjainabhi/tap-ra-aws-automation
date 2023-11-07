@@ -8,7 +8,7 @@ This is 2 steps automation with minimum inputs into config files.
 * **Step 2** to install tap profiles into eks clusters.
 
 Specifically, this automation will build:
-- a aws VPC (internet facing)
+- an aws VPC (internet facing)
 - 4 EKS clusters named as tap-view , tap-run , tap-build,tap-iterate and associated security IAM roles and groups and nodes into aws. 
 - Install Tanzu Application Platform profiles such as view,run,build,iterate on Respective eks clusters. 
 - Install Tanzu Application Platform sample demo app. 

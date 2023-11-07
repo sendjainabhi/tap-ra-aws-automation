@@ -44,7 +44,7 @@ cnrs:
 
 appliveview_connector:
   backend:
-    sslDisabled: "true"
+    sslDeactivated: "true"
     ingressEnabled: "true"
     host: appliveview.$tap_view_domain
 

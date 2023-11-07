@@ -13,7 +13,7 @@ chmod +x tap-iterate.sh
 
 chmod +x var-input-validatation.sh
 
-./var-input-validatation.sh
+#./var-input-validatation.sh
 echo "Step 1 => installing tanzu cli !!!"
 ./tanzu-cli-setup.sh
 echo "Step 2 => Setup TAP View Cluster"

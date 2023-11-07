@@ -28,5 +28,5 @@ kubectl delete ns tanzu-cluster-essentials
 
 echo "tanuz cli and tap packages deleted"
 
-../eks-csi-setup.sh -c tap-view --remove
+../eks-csi.sh -c tap-view --remove
 echo "eks csi cdriver deleted"

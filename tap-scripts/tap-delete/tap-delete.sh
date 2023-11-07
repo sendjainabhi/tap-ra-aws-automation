@@ -15,13 +15,12 @@ tanzu package repository delete tanzu-tap-repository  --namespace tap-install --
 
 kubectl delete secret -n tap-install --all
 
-kubectl delete ns tap-install
-
 #uninstall tanzu essentials
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
-kubectl delete ns tanzu-cluster-essentials
+../eks-csi.sh -c $TAP_BUILD_CLUSTER_NAME --remove
+
 
 #delete tap from view cluster
 aws eks --region $aws_region update-kubeconfig --name $TAP_VIEW_CLUSTER_NAME
@@ -35,14 +34,14 @@ tanzu package repository delete tanzu-tap-repository  --namespace tap-install --
 
 kubectl delete secret -n tap-install --all
 
-kubectl delete ns tap-install
+
 
 
 #uninstall tanzu essentials
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
-kubectl delete ns tanzu-cluster-essentials
+../eks-csi.sh -c $TAP_VIEW_CLUSTER_NAME --remove
 
 
 #delete tap from run cluster
@@ -57,14 +56,14 @@ tanzu package repository delete tanzu-tap-repository  --namespace tap-install --
 
 kubectl delete secret -n tap-install --all
 
-kubectl delete ns tap-install
+
 
 
 #uninstall tanzu essentials
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
-kubectl delete ns tanzu-cluster-essentials
+../eks-csi.sh -c $TAP_RUN_CLUSTER_NAME --remove
 
 
 #delete tap from iterate cluster
@@ -81,12 +80,12 @@ kubectl delete secret -n tap-install --all
 
 kubectl delete serviceaccount -n tap-install --all
 
-kubectl delete ns tap-install
-kubectl delete ns tanzu-cluster-essentials
 
 #uninstall tanzu essentials
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
+
+../eks-csi.sh -c $TAP_ITERATE_CLUSTER_NAME --remove
 
 #sudo rm -r $HOME/tanzu-cluster-essentials/
 #sudo rm -r $HOME/tanzu/
