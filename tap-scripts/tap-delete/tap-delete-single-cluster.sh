@@ -14,9 +14,6 @@ kubectl delete secret -n tap-install --all
 cd $HOME/tanzu-cluster-essentials
 ./uninstall.sh --yes
 
-kubectl delete ns tap-install
-
-kubectl delete ns tanzu-cluster-essentials
 
 # you can uncomment and execute below commands to delete tanzu cli from terminal
 #sudo rm -rf $HOME/tanzu/cli        # Remove previously downloaded cli files

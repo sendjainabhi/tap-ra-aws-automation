@@ -1,6 +1,6 @@
 ## Purpose
 
-This project is designed to build a Tanzu Application Platform 1.6.x multicluster instances on AWS EKS that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
+This project is designed to build a Tanzu Application Platform 1.7.x multicluster instances, TAP upgrade , delete and install single cluster TAP full profile on AWS EKS that corresponds to the [Tanzu Application Platform Reference Design](https://github.com/vmware-tanzu-labs/tanzu-validated-solutions/blob/main/src/reference-designs/tap-architecture-planning.md) . 
 
 This is 2 steps automation with minimum inputs into config files. 
 
@@ -207,6 +207,8 @@ chmod +x /tap-scripts/tap-full.sh
 
 If you got stuck in any specific stage and need to resume installation , you can use following scripts.Please login to respective EKS cluster before executing these scripts.
 
+* **Install TAP full profile packages** - execute `./tap-scripts/tap-full.sh`
+
 * **Install tanzu cli** - execute `./tap-scripts/tanzu-cli-setup.sh`
 
 * **Install tanzu essentials** - execute `./tap-scripts/tanzu-essential-setup.sh`  
@@ -218,6 +220,8 @@ If you got stuck in any specific stage and need to resume installation , you can
 * **Install TAP build profile packages** - execute `./tap-scripts/tanzu-build-profile.sh`
 
 * **Install TAP view profile packages** - execute `./tap-scripts/tanzu-view-profile.sh`
+
+* **Install TAP upgrade** - execute `./tap-scripts/tap-upgrade.sh`
 
 ## Clean up
 
@@ -240,16 +244,6 @@ Run `terraform destroy` to destroy to delete all aws resources created by terraf
 
 ### Troubleshooting 
  * if `terraform destroy` command not able to delete aws vpc resources then you can manually delete aws load balancer created by tap under tap vpc and run `terraform destroy` command again. 
-
-### Known issues 
-* View cluster `tap-gui` UI is not able to fetch apps run time resources due to timed out issue , due to cluster communications timed out error.  
-
-Error log 
-```
-Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36\""}
-{"ts":"2022-11-15T20:46:45.905Z","level":"info","meta":{"type":"incomingRequest","service":"backstage"},"msg":"::ffff:10.0.3.196 - - [15/Nov/2022:20:46:45 +0000] \"POST /api/kubernetes/services/spring-music HTTP/1.1\" - - \"-\" \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36\""}
-{"ts":"2022-11-15T20:47:15.189Z","level":"error","meta":{"type":"plugin","plugin":"kubernetes","service":"backstage"},"err":"action=retrieveObjectsByServiceId service=spring-music, error=Error: connect ETIMEDOUT 10.0.1.73:443"}
-```
 
 
  
